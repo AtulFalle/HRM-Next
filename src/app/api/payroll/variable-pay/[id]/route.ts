@@ -94,7 +94,14 @@ export async function PUT(
     }
 
     // Prepare update data
-    const updateData: any = {
+    const updateData: {
+      status: string
+      approvedBy?: string
+      approvedAt?: Date
+      rejectedBy?: string
+      rejectedAt?: Date
+      rejectionReason?: string
+    } = {
       status: validatedData.status,
     }
 

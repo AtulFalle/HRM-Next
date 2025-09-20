@@ -46,7 +46,10 @@ interface Goal {
 interface GoalProgressDialogProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (data: any) => void
+  onSubmit: (data: {
+    progress: number
+    updateText: string
+  }) => void
   goal: Goal | null
 }
 

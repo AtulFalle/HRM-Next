@@ -121,7 +121,7 @@ export function PerformanceReviews({ onReviewUpdate }: PerformanceReviewsProps) 
       </div>
 
       {/* Filters */}
-      <Tabs value={filter} onValueChange={(value) => setFilter(value as any)}>
+      <Tabs value={filter} onValueChange={(value) => setFilter(value as 'all' | 'pending' | 'completed')}>
         <TabsList>
           <TabsTrigger value="all">All Reviews</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>

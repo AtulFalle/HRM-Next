@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Plus, Users, Clock, CheckCircle } from 'lucide-react'
+import { Calendar, Plus, Users, CheckCircle } from 'lucide-react'
 import { CreateCycleDialog } from './CreateCycleDialog'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
@@ -49,7 +49,13 @@ export function ReviewCycles() {
     }
   }
 
-  const handleCreateCycle = async (cycleData: any) => {
+  const handleCreateCycle = async (cycleData: {
+    name: string
+    type: string
+    startDate: string
+    endDate: string
+    description?: string
+  }) => {
     try {
       const response = await fetch('/api/performance/cycles', {
         method: 'POST',

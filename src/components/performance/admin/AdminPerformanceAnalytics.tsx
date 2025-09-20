@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { BarChart3, TrendingUp, Target, Star, Users, Calendar, Award, AlertTriangle } from 'lucide-react'
+import { BarChart3, TrendingUp, Target, Star, Award, AlertTriangle } from 'lucide-react'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
@@ -68,21 +68,21 @@ export function AdminPerformanceAnalytics() {
       const employees = employeesData.employees || []
       
       // Calculate analytics
-      const completedGoals = goals.filter((goal: any) => goal.status === 'COMPLETED').length
+      const completedGoals = goals.filter((goal: { status: string }) => goal.status === 'COMPLETED').length
       const goalCompletionRate = goals.length > 0 ? Math.round((completedGoals / goals.length) * 100) : 0
       const averageProgress = goals.length > 0 
-        ? Math.round(goals.reduce((sum: number, goal: any) => sum + goal.progress, 0) / goals.length)
+        ? Math.round(goals.reduce((sum: number, goal: { progress: number }) => sum + goal.progress, 0) / goals.length)
         : 0
       
-      const completedReviews = reviews.filter((review: any) => review.status === 'COMPLETED').length
+      const completedReviews = reviews.filter((review: { status: string }) => review.status === 'COMPLETED').length
       const reviewCompletionRate = reviews.length > 0 ? Math.round((completedReviews / reviews.length) * 100) : 0
       
       // Top performers
-      const employeePerformance = employees.map((employee: any) => {
-        const employeeGoals = goals.filter((goal: any) => goal.employeeId === employee.id)
-        const completedGoals = employeeGoals.filter((goal: any) => goal.status === 'COMPLETED').length
+      const employeePerformance = employees.map((employee: { id: string; user: { name: string }; department?: { name: string } }) => {
+        const employeeGoals = goals.filter((goal: { employeeId: string }) => goal.employeeId === employee.id)
+        const completedGoals = employeeGoals.filter((goal: { status: string }) => goal.status === 'COMPLETED').length
         const averageProgress = employeeGoals.length > 0 
-          ? Math.round(employeeGoals.reduce((sum: number, goal: any) => sum + goal.progress, 0) / employeeGoals.length)
+          ? Math.round(employeeGoals.reduce((sum: number, goal: { progress: number }) => sum + goal.progress, 0) / employeeGoals.length)
           : 0
         
         return {
@@ -100,7 +100,7 @@ export function AdminPerformanceAnalytics() {
       
       // Department stats
       const departmentMap = new Map()
-      employees.forEach((employee: any) => {
+      employees.forEach((employee: { id: string; department?: { name: string } }) => {
         const dept = employee.department?.name || 'N/A'
         if (!departmentMap.has(dept)) {
           departmentMap.set(dept, {
@@ -115,10 +115,10 @@ export function AdminPerformanceAnalytics() {
         const deptStats = departmentMap.get(dept)
         deptStats.totalEmployees++
         
-        const employeeGoals = goals.filter((goal: any) => goal.employeeId === employee.id)
-        const completedGoals = employeeGoals.filter((goal: any) => goal.status === 'COMPLETED').length
+        const employeeGoals = goals.filter((goal: { employeeId: string }) => goal.employeeId === employee.id)
+        const completedGoals = employeeGoals.filter((goal: { status: string }) => goal.status === 'COMPLETED').length
         const averageProgress = employeeGoals.length > 0 
-          ? Math.round(employeeGoals.reduce((sum: number, goal: any) => sum + goal.progress, 0) / employeeGoals.length)
+          ? Math.round(employeeGoals.reduce((sum: number, goal: { progress: number }) => sum + goal.progress, 0) / employeeGoals.length)
           : 0
         
         deptStats.totalProgress += averageProgress
@@ -134,8 +134,8 @@ export function AdminPerformanceAnalytics() {
       }))
       
       // Review stats
-      const pendingReviews = reviews.filter((review: any) => review.status === 'PENDING').length
-      const overdueReviews = reviews.filter((review: any) => {
+      const pendingReviews = reviews.filter((review: { status: string }) => review.status === 'PENDING').length
+      const overdueReviews = reviews.filter((review: { status: string; createdAt: string }) => {
         const reviewDate = new Date(review.createdAt)
         const now = new Date()
         const daysDiff = Math.ceil((now.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24))
@@ -143,8 +143,8 @@ export function AdminPerformanceAnalytics() {
       }).length
       
       // Goal stats
-      const activeGoals = goals.filter((goal: any) => goal.status === 'ACTIVE').length
-      const overdueGoals = goals.filter((goal: any) => {
+      const activeGoals = goals.filter((goal: { status: string }) => goal.status === 'ACTIVE').length
+      const overdueGoals = goals.filter((goal: { status: string; endDate: string }) => {
         const endDate = new Date(goal.endDate)
         const now = new Date()
         return goal.status === 'ACTIVE' && now > endDate

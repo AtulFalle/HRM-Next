@@ -74,7 +74,7 @@ export function PayrollInputForm({
   year = new Date().getFullYear(),
   initialData 
 }: PayrollInputFormProps) {
-  const [employees, setEmployees] = useState<any[]>([])
+  const [employees, setEmployees] = useState<{ id: string; name: string; email: string; department?: { name: string } }[]>([])
   const [loading, setLoading] = useState(false)
   const [calculations, setCalculations] = useState({
     totalEarnings: 0,

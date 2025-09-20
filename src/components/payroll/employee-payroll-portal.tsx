@@ -10,8 +10,18 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { User, Plus, AlertCircle } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DataTable } from '@/components/ui/data-table'
+import { User, Plus, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { PayslipViewer } from './payslip-viewer'
 import { EmployeeStatsCards } from './employee/EmployeeStatsCards'

@@ -304,7 +304,7 @@ export function AttendanceCheckin() {
       {attendance && (
         <Card>
           <CardHeader>
-            <CardTitle>Today's Attendance</CardTitle>
+            <CardTitle>Today&apos;s Attendance</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

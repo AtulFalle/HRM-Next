@@ -59,7 +59,15 @@ interface ReviewCycle {
 interface EditCycleDialogProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (data: any) => void
+  onSubmit: (data: {
+    id: string
+    name: string
+    type: string
+    startDate: string
+    endDate: string
+    description?: string
+    status: string
+  }) => void
   cycle: ReviewCycle | null
 }
 
@@ -81,10 +89,10 @@ export function EditCycleDialog({ isOpen, onClose, onSubmit, cycle }: EditCycleD
     if (cycle) {
       form.reset({
         name: cycle.name,
-        type: cycle.type as any,
+        type: cycle.type as 'MID_YEAR' | 'ANNUAL' | 'QUARTERLY' | 'PROJECT_BASED',
         startDate: new Date(cycle.startDate),
         endDate: new Date(cycle.endDate),
-        status: cycle.status as any,
+        status: cycle.status as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'DRAFT',
       })
     }
   }, [cycle, form])

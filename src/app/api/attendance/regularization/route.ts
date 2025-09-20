@@ -6,7 +6,7 @@ import { getUserContext } from '@/lib/auth-utils'
 export async function GET(request: NextRequest) {
   try {
     const userContext = await getUserContext()
-    if (!userContext.success) {
+    if (!userContext || !userContext.success) {
       return NextResponse.json({ success: false, error: userContext.error || 'Unauthorized' }, { status: 401 })
     }
 
@@ -14,19 +14,19 @@ export async function GET(request: NextRequest) {
     const employeeId = searchParams.get('employeeId')
 
     // Determine target employee(s) for regularization requests
-    let targetEmployeeId = userContext.user.employee?.id
+    let targetEmployeeId = userContext?.user?.employee?.id
     let isAdminView = false
 
     if (employeeId) {
       // Specific employee requested
-      if (employeeId !== userContext.user.employee?.id) {
+      if (employeeId !== userContext?.user?.employee?.id) {
         // Only managers and admins can view other employees' requests
-        if (!userContext.isManagerOrAdmin()) {
+        if (userContext && !userContext?.isManagerOrAdmin()) {
           return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
         }
         targetEmployeeId = employeeId
       }
-    } else if (userContext.isManagerOrAdmin()) {
+    } else if (userContext && userContext?.isManagerOrAdmin()) {
       // No specific employee requested and user is manager/admin - show all employees
       isAdminView = true
       targetEmployeeId = undefined
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Employee not found' }, { status: 404 })
     }
 
-    const whereClause: any = {}
+    const whereClause: { employeeId?: string } = {}
     
     // Add employee filter if not admin view
     if (!isAdminView && targetEmployeeId) {
@@ -78,11 +78,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const userContext = await getUserContext()
-    if (!userContext.success) {
+    if (!userContext || !userContext.success) {
       return NextResponse.json({ success: false, error: userContext.error || 'Unauthorized' }, { status: 401 })
     }
 
-    const employeeId = userContext.user.employee?.id
+    const employeeId = userContext?.user?.employee?.id
     if (!employeeId) {
       return NextResponse.json({ success: false, error: 'Employee not found' }, { status: 404 })
     }

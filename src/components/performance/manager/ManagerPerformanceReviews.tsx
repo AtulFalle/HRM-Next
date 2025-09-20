@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+// Removed unused Tabs imports
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Eye, Star, Calendar, User, Target, Search, Filter, Plus } from 'lucide-react'
+import { Eye, Star, Calendar, User, Target, Search, Plus } from 'lucide-react'
 import { CreateReviewDialog } from './CreateReviewDialog'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
@@ -92,7 +92,16 @@ export function ManagerPerformanceReviews({ onReviewUpdate }: ManagerPerformance
     }
   }
 
-  const handleCreateReview = async (reviewData: any) => {
+  const handleCreateReview = async (reviewData: {
+    employeeId: string
+    goalId: string
+    cycleId: string
+    reviewType: string
+    rating: string
+    comments: string
+    strengths: string
+    improvements: string
+  }) => {
     try {
       const response = await fetch('/api/performance/reviews', {
         method: 'POST',

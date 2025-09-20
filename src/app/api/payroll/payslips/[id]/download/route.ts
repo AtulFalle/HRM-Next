@@ -118,7 +118,22 @@ export async function GET(
   }
 }
 
-function generatePayslipPDF(payslip: any, calculationResult: any): jsPDF {
+function generatePayslipPDF(payslip: { 
+  id: string
+  employee: { name: string; email: string; employeeId: string }
+  month: number
+  year: number
+  status: string
+  basicSalary: number
+  allowances: number
+  deductions: number
+  netSalary: number
+}, calculationResult: {
+  basicSalary: number
+  allowances: number
+  deductions: number
+  netSalary: number
+}): jsPDF {
   const pdf = new jsPDF('p', 'mm', 'a4')
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()

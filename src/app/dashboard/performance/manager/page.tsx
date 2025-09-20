@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Users, Target, TrendingUp, Calendar, Star } from 'lucide-react'
+import { Target, TrendingUp, Calendar } from 'lucide-react'
 import { ManagerTeamGoals } from '@/components/performance/manager/ManagerTeamGoals'
 import { ManagerPerformanceReviews } from '@/components/performance/manager/ManagerPerformanceReviews'
 import { ManagerReviewCycles } from '@/components/performance/manager/ManagerReviewCycles'
@@ -53,14 +51,14 @@ export default function ManagerPerformancePage() {
       const goals = goalsData.goals || []
       const reviews = reviewsData.reviews || []
       
-      const completedGoals = goals.filter((goal: any) => goal.status === 'COMPLETED').length
+      const completedGoals = goals.filter((goal: { status: string }) => goal.status === 'COMPLETED').length
       const averageProgress = goals.length > 0 
-        ? Math.round(goals.reduce((sum: number, goal: any) => sum + goal.progress, 0) / goals.length)
+        ? Math.round(goals.reduce((sum: number, goal: { progress: number }) => sum + goal.progress, 0) / goals.length)
         : 0
       
-      const pendingReviews = reviews.filter((review: any) => review.status === 'PENDING').length
-      const completedReviews = reviews.filter((review: any) => review.status === 'COMPLETED').length
-      const overdueReviews = reviews.filter((review: any) => {
+      const pendingReviews = reviews.filter((review: { status: string }) => review.status === 'PENDING').length
+      const completedReviews = reviews.filter((review: { status: string }) => review.status === 'COMPLETED').length
+      const overdueReviews = reviews.filter((review: { status: string; createdAt: string }) => {
         const reviewDate = new Date(review.createdAt)
         const now = new Date()
         const daysDiff = Math.ceil((now.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24))
@@ -68,7 +66,7 @@ export default function ManagerPerformancePage() {
       }).length
       
       setStats({
-        teamSize: goals.length > 0 ? new Set(goals.map((goal: any) => goal.employeeId)).size : 0,
+        teamSize: goals.length > 0 ? new Set(goals.map((goal: { employeeId: string }) => goal.employeeId)).size : 0,
         totalGoals: goals.length,
         completedGoals,
         averageProgress,

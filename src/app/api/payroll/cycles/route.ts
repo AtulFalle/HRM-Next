@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10')
 
     // Build where clause
-    const where: any = {}
+    const where: { month?: number; year?: number; status?: string } = {}
     if (month) where.month = parseInt(month)
     if (year) where.year = parseInt(year)
     if (status) where.status = status

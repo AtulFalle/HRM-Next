@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Plus, Target, TrendingUp, Users, Calendar } from 'lucide-react'
+import { Target, TrendingUp, Calendar } from 'lucide-react'
 import { GoalSettingInterface } from '@/components/performance/GoalSettingInterface'
 import { PerformanceReviews } from '@/components/performance/PerformanceReviews'
 import { ReviewCycles } from '@/components/performance/ReviewCycles'
@@ -51,14 +49,14 @@ export default function PerformancePage() {
       const goals = goalsData.goals || []
       const reviews = reviewsData.reviews || []
       
-      const completedGoals = goals.filter((goal: any) => goal.status === 'COMPLETED').length
-      const activeGoals = goals.filter((goal: any) => goal.status === 'ACTIVE').length
+      const completedGoals = goals.filter((goal: { status: string }) => goal.status === 'COMPLETED').length
+      const activeGoals = goals.filter((goal: { status: string }) => goal.status === 'ACTIVE').length
       const averageProgress = goals.length > 0 
-        ? Math.round(goals.reduce((sum: number, goal: any) => sum + goal.progress, 0) / goals.length)
+        ? Math.round(goals.reduce((sum: number, goal: { progress: number }) => sum + goal.progress, 0) / goals.length)
         : 0
       
-      const pendingReviews = reviews.filter((review: any) => review.status === 'PENDING').length
-      const completedReviews = reviews.filter((review: any) => review.status === 'COMPLETED').length
+      const pendingReviews = reviews.filter((review: { status: string }) => review.status === 'PENDING').length
+      const completedReviews = reviews.filter((review: { status: string }) => review.status === 'COMPLETED').length
       
       setStats({
         totalGoals: goals.length,

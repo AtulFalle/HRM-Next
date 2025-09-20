@@ -53,7 +53,15 @@ const createGoalSchema = z.object({
 interface CreateGoalDialogProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (data: any) => void
+  onSubmit: (data: {
+    title: string
+    description: string
+    target: string
+    category: string
+    priority: string
+    startDate: string
+    endDate: string
+  }) => void
 }
 
 export function CreateGoalDialog({ isOpen, onClose, onSubmit }: CreateGoalDialogProps) {

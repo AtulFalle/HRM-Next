@@ -84,7 +84,7 @@ export function PayrollAdminDashboard({ initialStats }: PayrollAdminDashboardPro
   const [showPreviewDialog, setShowPreviewDialog] = useState(false)
   const [showValidationDrawer, setShowValidationDrawer] = useState(false)
   const [showFinalizeDialog, setShowFinalizeDialog] = useState(false)
-  const [selectedEmployee, setSelectedEmployee] = useState<any>(null)
+  const [selectedEmployee, setSelectedEmployee] = useState<{ id: string; name: string; email: string } | null>(null)
   const [selectedCycle, setSelectedCycle] = useState<PayrollCycle | null>(null)
   const [selectedError, setSelectedError] = useState<PayrollValidationError | null>(null)
 

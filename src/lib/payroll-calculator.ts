@@ -91,7 +91,7 @@ export class PayrollCalculator {
     let tax = 0
     let insurance = 0
     let leaveDeduction = 0
-    let otherDeductions = 0
+    const otherDeductions = 0
 
     if (includeStatutoryDeductions) {
       pf = this.calculatePF(basicSalary)

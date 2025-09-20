@@ -66,7 +66,16 @@ interface Goal {
 interface CreateReviewDialogProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (data: any) => void
+  onSubmit: (data: {
+    employeeId: string
+    goalId: string
+    cycleId: string
+    reviewType: string
+    rating: string
+    comments: string
+    strengths: string
+    improvements: string
+  }) => void
 }
 
 export function CreateReviewDialog({ isOpen, onClose, onSubmit }: CreateReviewDialogProps) {

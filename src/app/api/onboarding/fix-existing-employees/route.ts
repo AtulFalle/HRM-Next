@@ -56,7 +56,7 @@ export async function POST() {
           await prisma.onboardingStep.create({
             data: {
               submissionId: onboardingSubmission.id,
-              stepType: stepType as any,
+              stepType: stepType as 'PERSONAL_INFO' | 'BANKING_DETAILS' | 'DOCUMENTS' | 'BACKGROUND_VERIFICATION' | 'COMPLETED',
               status: 'PENDING'
             }
           })

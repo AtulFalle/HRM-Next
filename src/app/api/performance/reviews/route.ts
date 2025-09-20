@@ -48,7 +48,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const where: any = {}
+    const where: { 
+      employeeId?: string
+      cycleId?: string
+      status?: string
+    } = {}
 
     // Filter by role
     if (user.role === 'EMPLOYEE') {

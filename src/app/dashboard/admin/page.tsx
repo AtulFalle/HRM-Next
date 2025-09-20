@@ -41,7 +41,7 @@ export default function AdminDashboardPage() {
           Welcome back, {session.user.name}!
         </h1>
         <p className="text-lg text-muted-foreground">
-          Here's what's happening with your HRM system today
+          Here&apos;s what&apos;s happening with your HRM system today
         </p>
       </div>
 

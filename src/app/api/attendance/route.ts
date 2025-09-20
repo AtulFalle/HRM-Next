@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build date filter
-    const dateFilter: any = {}
+    const dateFilter: { date?: { gte: Date; lte: Date } } = {}
     if (month && year) {
       const startDate = new Date(parseInt(year), parseInt(month) - 1, 1)
       const endDate = new Date(parseInt(year), parseInt(month), 0)
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const whereClause: any = {
+    const whereClause: { date?: { gte: Date; lte: Date } } = {
       ...dateFilter
     }
 
@@ -140,7 +140,12 @@ export async function POST(request: NextRequest) {
       })
     } else {
       // Update existing record
-      const updateData: any = {}
+      const updateData: { 
+        checkIn?: Date
+        checkOut?: Date
+        checkInLocation?: string
+        checkOutLocation?: string
+      } = {}
       
       if (action === 'checkin' && !attendance.checkIn) {
         updateData.checkIn = new Date()

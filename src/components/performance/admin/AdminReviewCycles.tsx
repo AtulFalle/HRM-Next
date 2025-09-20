@@ -56,7 +56,13 @@ export function AdminReviewCycles({ onCycleUpdate }: AdminReviewCyclesProps) {
     }
   }
 
-  const handleCreateCycle = async (cycleData: any) => {
+  const handleCreateCycle = async (cycleData: {
+    name: string
+    type: string
+    startDate: string
+    endDate: string
+    description?: string
+  }) => {
     try {
       const response = await fetch('/api/performance/cycles', {
         method: 'POST',
@@ -76,7 +82,15 @@ export function AdminReviewCycles({ onCycleUpdate }: AdminReviewCyclesProps) {
     }
   }
 
-  const handleEditCycle = async (cycleData: any) => {
+  const handleEditCycle = async (cycleData: {
+    id: string
+    name: string
+    type: string
+    startDate: string
+    endDate: string
+    description?: string
+    status: string
+  }) => {
     if (!selectedCycle) return
 
     try {

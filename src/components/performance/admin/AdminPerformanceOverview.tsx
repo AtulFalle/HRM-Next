@@ -56,18 +56,18 @@ export function AdminPerformanceOverview({ onDataUpdate }: AdminPerformanceOverv
       const reviews = reviewsData.reviews || []
       
       // Process employee performance data
-      const employeePerformance = employeesData.employees?.map((employee: any) => {
-        const employeeGoals = goals.filter((goal: any) => goal.employeeId === employee.id)
-        const employeeReviews = reviews.filter((review: any) => review.employeeId === employee.id)
+      const employeePerformance = employeesData.employees?.map((employee: { id: string; user: { name: string }; department?: { name: string } }) => {
+        const employeeGoals = goals.filter((goal: { employeeId: string }) => goal.employeeId === employee.id)
+        const employeeReviews = reviews.filter((review: { employeeId: string }) => review.employeeId === employee.id)
         
-        const completedGoals = employeeGoals.filter((goal: any) => goal.status === 'COMPLETED').length
+        const completedGoals = employeeGoals.filter((goal: { status: string }) => goal.status === 'COMPLETED').length
         const averageProgress = employeeGoals.length > 0 
-          ? Math.round(employeeGoals.reduce((sum: number, goal: any) => sum + goal.progress, 0) / employeeGoals.length)
+          ? Math.round(employeeGoals.reduce((sum: number, goal: { progress: number }) => sum + goal.progress, 0) / employeeGoals.length)
           : 0
         
         const lastReview = employeeReviews
-          .filter((review: any) => review.status === 'COMPLETED')
-          .sort((a: any, b: any) => new Date(b.reviewedAt || b.createdAt).getTime() - new Date(a.reviewedAt || a.createdAt).getTime())[0]
+          .filter((review: { status: string }) => review.status === 'COMPLETED')
+          .sort((a: { reviewedAt?: string; createdAt: string }, b: { reviewedAt?: string; createdAt: string }) => new Date(b.reviewedAt || b.createdAt).getTime() - new Date(a.reviewedAt || a.createdAt).getTime())[0]
         
         return {
           id: employee.id,
@@ -144,7 +144,7 @@ export function AdminPerformanceOverview({ onDataUpdate }: AdminPerformanceOverv
       </div>
 
       {/* Filters */}
-      <Tabs value={filter} onValueChange={(value) => setFilter(value as any)}>
+      <Tabs value={filter} onValueChange={(value) => setFilter(value as 'all' | 'high-performers' | 'needs-attention')}>
         <TabsList>
           <TabsTrigger value="all">All Employees</TabsTrigger>
           <TabsTrigger value="high-performers">High Performers</TabsTrigger>

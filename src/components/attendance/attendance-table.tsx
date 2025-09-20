@@ -226,7 +226,7 @@ export function AttendanceTable({ employeeId, isAdminView = false }: AttendanceT
         acc[empId].records.push(record)
       }
       return acc
-    }, {} as Record<string, { employee: any, records: AttendanceData[] }>) : 
+    }, {} as Record<string, { employee: { id: string; name: string; email: string; department?: { name: string } }, records: AttendanceData[] }>) : 
     null
 
   if (loading) {

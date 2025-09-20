@@ -24,7 +24,12 @@ export async function POST(request: NextRequest) {
     const validatedData = exportSchema.parse(body)
 
     // Build where clause based on export parameters
-    const where: any = {
+    const where: { 
+      month: number
+      year: number
+      status?: string
+      employeeId?: string
+    } = {
       month: validatedData.month,
       year: validatedData.year,
     }
@@ -39,7 +44,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    let data: any[] = []
+    let data: Record<string, unknown>[] = []
     let filename = ''
 
     switch (validatedData.format) {
@@ -149,7 +154,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Helper functions for different export formats
-async function getPayrollSummaryData(where: any) {
+async function getPayrollSummaryData(where: { month: number; year: number; status?: string; employeeId?: string }) {
   const payrolls = await prisma.payroll.findMany({
     where,
     include: {
@@ -180,7 +185,7 @@ async function getPayrollSummaryData(where: any) {
   }))
 }
 
-async function getEmployeeDetailsData(where: any) {
+async function getEmployeeDetailsData(where: { month: number; year: number; status?: string; employeeId?: string }) {
   const payrollInputs = await prisma.payrollInput.findMany({
     where: {
       payroll: where,
@@ -227,7 +232,7 @@ async function getEmployeeDetailsData(where: any) {
   }))
 }
 
-async function getVariablePayData(where: any) {
+async function getVariablePayData(where: { month: number; year: number; status?: string; employeeId?: string }) {
   const variablePayEntries = await prisma.variablePayEntry.findMany({
     where: {
       month: where.month,
@@ -273,7 +278,7 @@ async function getVariablePayData(where: any) {
   }))
 }
 
-async function getCorrectionsData(where: any) {
+async function getCorrectionsData(where: { month: number; year: number; status?: string; employeeId?: string }) {
   const correctionRequests = await prisma.payrollCorrectionRequest.findMany({
     where: {
       payroll: where,
@@ -310,7 +315,7 @@ async function getCorrectionsData(where: any) {
   }))
 }
 
-function generateCSV(data: any[]): string {
+function generateCSV(data: Record<string, unknown>[]): string {
   if (data.length === 0) return ''
 
   const headers = Object.keys(data[0])

@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './card'
 import { cn } from '@/lib/utils'
+import { LoadingSkeleton } from './loading-skeleton'
 import { ReactNode } from 'react'
 
 interface ModernCardProps {

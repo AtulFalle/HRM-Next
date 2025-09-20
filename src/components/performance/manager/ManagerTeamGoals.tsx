@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Target, Calendar, TrendingUp, User, Search, Filter } from 'lucide-react'
+import { Target, Calendar, TrendingUp, User, Search } from 'lucide-react'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
@@ -120,7 +120,7 @@ export function ManagerTeamGoals({ onGoalUpdate }: ManagerTeamGoalsProps) {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Team Goals</h2>
           <p className="text-muted-foreground">
-            Monitor and track your team's performance goals
+            Monitor and track your team&apos;s performance goals
           </p>
         </div>
       </div>
@@ -310,7 +310,7 @@ Reviews: ${goalData.reviews.length}
                           const cyclesData = await cyclesResponse.json()
                           
                           if (cyclesData.cycles && cyclesData.cycles.length > 0) {
-                            const activeCycle = cyclesData.cycles.find((cycle: any) => cycle.status === 'ACTIVE')
+                            const activeCycle = cyclesData.cycles.find((cycle: { status: string }) => cycle.status === 'ACTIVE')
                             
                             if (activeCycle) {
                               // Create a review for this goal

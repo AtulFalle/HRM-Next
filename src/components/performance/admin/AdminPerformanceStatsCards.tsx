@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, Target, CheckCircle, TrendingUp, Star, Calendar, AlertTriangle, BarChart3 } from 'lucide-react'
+import { Users, Target, CheckCircle, TrendingUp, Star, Calendar, AlertTriangle } from 'lucide-react'
 
 interface AdminPerformanceStats {
   totalEmployees: number

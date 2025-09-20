@@ -14,11 +14,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { UserCheck } from 'lucide-react'
+import { UserCheck, CheckCircle, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { ManagerStatsCards } from './manager/ManagerStatsCards'
 import { VariablePayApprovalTable } from './manager/VariablePayApprovalTable'
-import { TeamPayrollSummary } from './manager/TeamPayrollSummary'
+import { TeamPayrollSummaryComponent } from './manager/TeamPayrollSummary'
 import { ApprovalHistoryTable } from './manager/ApprovalHistoryTable'
 import type { 
   VariablePayEntryWithEmployee,
@@ -288,7 +288,7 @@ export function ManagerPayrollInterface() {
 
         {/* Team Payroll Summary */}
         <TabsContent value="team-summary" className="space-y-6">
-          <TeamPayrollSummary
+          <TeamPayrollSummaryComponent
             summary={teamPayrollSummary}
             onViewDetails={(employee) => {
               setSelectedEmployee(employee)

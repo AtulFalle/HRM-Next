@@ -22,13 +22,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
 
-    const where: any = {}
+    const where: { status?: string } = {}
     if (status) {
       where.status = status
     }
 
     const cycles = await prisma.reviewCycle.findMany({
-      where,
       include: {
         creator: {
           select: {

@@ -95,7 +95,13 @@ export async function PUT(
     }
 
     // Prepare update data
-    const updateData: any = {
+    const updateData: {
+      status: string
+      reviewComments?: string
+      resolution?: string
+      reviewedBy?: string
+      reviewedAt?: Date
+    } = {
       status: validatedData.status,
       reviewComments: validatedData.reviewComments,
       resolution: validatedData.resolution,

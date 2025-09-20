@@ -67,7 +67,15 @@ export function GoalSettingInterface({ onGoalUpdate }: GoalSettingInterfaceProps
     }
   }
 
-  const handleCreateGoal = async (goalData: any) => {
+  const handleCreateGoal = async (goalData: { 
+    title: string
+    description: string
+    target: string
+    category: string
+    priority: string
+    startDate: string
+    endDate: string
+  }) => {
     try {
       const response = await fetch('/api/performance/goals', {
         method: 'POST',
@@ -87,7 +95,16 @@ export function GoalSettingInterface({ onGoalUpdate }: GoalSettingInterfaceProps
     }
   }
 
-  const handleUpdateGoal = async (goalData: any) => {
+  const handleUpdateGoal = async (goalData: { 
+    id: string
+    title: string
+    description: string
+    target: string
+    category: string
+    priority: string
+    startDate: string
+    endDate: string
+  }) => {
     if (!selectedGoal) return
 
     try {
@@ -127,7 +144,11 @@ export function GoalSettingInterface({ onGoalUpdate }: GoalSettingInterfaceProps
     }
   }
 
-  const handleUpdateProgress = async (updateData: any) => {
+  const handleUpdateProgress = async (updateData: { 
+    goalId: string
+    progress: number
+    updateText: string
+  }) => {
     if (!selectedGoal) return
 
     try {

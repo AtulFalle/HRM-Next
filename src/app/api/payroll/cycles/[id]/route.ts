@@ -124,7 +124,7 @@ export async function PUT(
     const validatedData = updatePayrollCycleSchema.parse(body)
 
     // Update all payroll records for this cycle
-    const updateData: any = {}
+    const updateData: { status?: string } = {}
     if (validatedData.status) {
       updateData.status = validatedData.status
     }

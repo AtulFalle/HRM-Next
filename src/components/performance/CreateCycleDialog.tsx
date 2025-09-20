@@ -49,7 +49,13 @@ const createCycleSchema = z.object({
 interface CreateCycleDialogProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (data: any) => void
+  onSubmit: (data: {
+    name: string
+    type: string
+    startDate: string
+    endDate: string
+    description?: string
+  }) => void
 }
 
 export function CreateCycleDialog({ isOpen, onClose, onSubmit }: CreateCycleDialogProps) {

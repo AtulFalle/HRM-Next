@@ -67,7 +67,17 @@ interface Goal {
 interface UpdateGoalDialogProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (data: any) => void
+  onSubmit: (data: {
+    id: string
+    title: string
+    description: string
+    target: string
+    category: string
+    priority: string
+    status: string
+    startDate: Date
+    endDate: Date
+  }) => void
   goal: Goal | null
 }
 
@@ -94,9 +104,9 @@ export function UpdateGoalDialog({ isOpen, onClose, onSubmit, goal }: UpdateGoal
         title: goal.title,
         description: goal.description,
         target: goal.target,
-        category: goal.category as any,
-        priority: goal.priority as any,
-        status: goal.status as any,
+        category: goal.category as 'PERSONAL' | 'PROFESSIONAL' | 'SKILL_DEVELOPMENT' | 'PROJECT_BASED',
+        priority: goal.priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
+        status: goal.status as 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD',
         startDate: new Date(goal.startDate),
         endDate: new Date(goal.endDate),
       })

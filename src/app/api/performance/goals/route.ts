@@ -38,7 +38,11 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const category = searchParams.get('category')
 
-    const where: any = {
+    const where: { 
+      employee: { userId: string }
+      status?: string
+      category?: string
+    } = {
       employee: {
         userId: session.user.id
       }
