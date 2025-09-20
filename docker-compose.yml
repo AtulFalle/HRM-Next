@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: hrm-postgres
+    environment:
+      POSTGRES_DB: hrm_db
+      POSTGRES_USER: hrm_user
+      POSTGRES_PASSWORD: hrm_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hrm_user -d hrm_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # HRM Application
+  app:
+    build: .
+    container_name: hrm-app
+    ports:
+      - "3000:3000"
+    environment:
+      # Database
+      DATABASE_URL: "postgresql://hrm_user:hrm_password@postgres:5432/hrm_db?schema=public"
+      
+      # NextAuth
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "hrm-super-secret-jwt-key-for-development-only"
+      
+      # Optional: OAuth providers (uncomment and add your keys)
+      # GOOGLE_CLIENT_ID: "your-google-client-id"
+      # GOOGLE_CLIENT_SECRET: "your-google-client-secret"
+      # FACEBOOK_CLIENT_ID: "your-facebook-client-id"
+      # FACEBOOK_CLIENT_SECRET: "your-facebook-client-secret"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    command: >
+      sh -c "
+        echo '⏳ Waiting for database to be ready...' &&
+        sleep 10 &&
+        echo '📊 Running database migrations...' &&
+        pnpm db:push &&
+        echo '🌱 Seeding database...' &&
+        pnpm db:seed &&
+        echo '🚀 Starting application...' &&
+        pnpm start
+      "
+
+volumes:
+  postgres_data:
