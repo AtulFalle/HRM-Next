@@ -146,7 +146,7 @@ export function CreateReviewDialog({ isOpen, onClose, onSubmit }: CreateReviewDi
       // Ensure all required fields are present and not undefined
       const reviewData = {
         ...data,
-        goalId: data.goalId ?? '',
+        goalId: data.goalId === 'none' ? '' : data.goalId ?? '',
         comments: data.comments ?? '',
         strengths: data.strengths ?? '',
         improvements: data.improvements ?? '',
@@ -289,7 +289,7 @@ export function CreateReviewDialog({ isOpen, onClose, onSubmit }: CreateReviewDi
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">No specific goal</SelectItem>
+                      <SelectItem value="none">No specific goal</SelectItem>
                       {goals.map((goal) => (
                         <SelectItem key={goal.id} value={goal.id}>
                           {goal.title}

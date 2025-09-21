@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Users, Calendar, DollarSign, Settings, LogOut, User, FileText, CheckCircle, Menu, X, Bell, Search, Target } from 'lucide-react'
+import { Users, Calendar, DollarSign, Settings, LogOut, User, FileText, CheckCircle, Menu, X, Bell, Search, Target, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { cn } from '@/lib/utils'
@@ -52,7 +52,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigation = [
     { name: 'Dashboard', href: `/dashboard/${session.user.role.toLowerCase()}`, icon: User },
     ...(session.user.role === 'EMPLOYEE' ? 
-      [{ name: 'My Onboarding', href: '/dashboard/employee/onboarding', icon: FileText }] : []),
+      [
+        { name: 'My Onboarding', href: '/dashboard/employee/onboarding', icon: FileText },
+        { name: 'My Requests', href: '/dashboard/employee/requests', icon: MessageSquare }
+      ] : []),
+    ...(session.user.role === 'MANAGER' || session.user.role === 'ADMIN' ? 
+      [
+        { name: 'All Requests', href: '/dashboard/requests', icon: MessageSquare }
+      ] : []),
     { name: 'Employees', href: '/dashboard/employees', icon: Users },
     { 
       name: 'Attendance', 

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Clock, Calendar, User, CheckCircle, DollarSign, FileText } from 'lucide-react'
+import { Clock, Calendar, User, CheckCircle, DollarSign, FileText, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 
 // Mock data for employee dashboard
@@ -150,6 +150,32 @@ export default function EmployeeDashboard() {
                   </Badge>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Employee Self Service */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Employee Self Service
+            </CardTitle>
+            <CardDescription>
+              Submit and manage your support requests and queries
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Need help? Submit a request for IT support, payroll questions, or general queries.
+              </p>
+              <Link href="/dashboard/employee/requests">
+                <Button className="w-full">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Manage My Requests
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

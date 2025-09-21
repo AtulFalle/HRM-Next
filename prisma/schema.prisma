@@ -48,6 +48,8 @@ model User {
   goalUpdates GoalUpdate[]
   performanceReviews PerformanceReview[] @relation("PerformanceReviewer")
   reviewCycles ReviewCycle[] @relation("ReviewCycleCreator")
+  assignedRequests EmployeeRequest[] @relation("RequestAssignee")
+  requestComments RequestComment[]
 
   @@map("users")
 }
@@ -127,6 +129,7 @@ model Employee {
   onboardingSubmission OnboardingSubmission?
   performanceGoals PerformanceGoal[]
   performanceReviews PerformanceReview[]
+  employeeRequests EmployeeRequest[]
 
   @@map("employees")
 }
@@ -789,4 +792,53 @@ enum CycleStatus {
   COMPLETED
   CANCELLED
   DRAFT
+}
+
+// Employee Self Service Models
+model EmployeeRequest {
+  id          String   @id @default(cuid())
+  employeeId  String
+  category    RequestCategory
+  title       String   @db.VarChar(255)
+  description String   @db.Text
+  status      RequestStatus @default(OPEN)
+  assignedTo  String?  // FK to User (manager/admin)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  assignedUser User?   @relation("RequestAssignee", fields: [assignedTo], references: [id])
+  comments    RequestComment[]
+
+  @@map("employee_requests")
+}
+
+model RequestComment {
+  id        String   @id @default(cuid())
+  requestId String
+  authorId  String   // FK to User (employee or manager)
+  comment   String   @db.Text
+  createdAt DateTime @default(now())
+
+  // Relations
+  request   EmployeeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  author    User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("request_comments")
+}
+
+enum RequestCategory {
+  QUERY
+  IT_SUPPORT
+  PAYROLL
+  GENERAL
+}
+
+enum RequestStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_INFO
+  RESOLVED
+  CLOSED
 }
