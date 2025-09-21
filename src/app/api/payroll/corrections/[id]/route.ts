@@ -42,7 +42,7 @@ export async function GET(
     }
 
     // Check permissions - employees can only view their own requests
-    if (!userContext.isManagerOrAdmin() && correctionRequest.employeeId !== userContext.user.employee?.id) {
+    if (!userContext.isManagerOrAdmin?.() && correctionRequest.employeeId !== userContext.user?.employee?.id) {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
@@ -85,7 +85,7 @@ export async function PUT(
     }
 
     // Check permissions - only managers and admins can review/update correction requests
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Manager or Admin access required' }, { status: 403 })
     }
 
@@ -95,13 +95,7 @@ export async function PUT(
     }
 
     // Prepare update data
-    const updateData: {
-      status: string
-      reviewComments?: string
-      resolution?: string
-      reviewedBy?: string
-      reviewedAt?: Date
-    } = {
+    const updateData: Record<string, unknown> = {
       status: validatedData.status,
       reviewComments: validatedData.reviewComments,
       resolution: validatedData.resolution,
@@ -156,7 +150,7 @@ export async function PUT(
     console.error('Error updating correction request:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error.issues },
         { status: 400 }
       )
     }
@@ -189,8 +183,8 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Correction request not found' }, { status: 404 })
     }
 
-    // Check permissions - only the requester or admins can delete
-    if (existingRequest.requestedBy !== userContext.user.id && userContext.user.role !== 'ADMIN') {
+    // Check permissions - only the requester or admins can delete      
+    if (existingRequest.requestedBy !== userContext.user?.id && userContext.user?.role !== 'ADMIN') {
       return NextResponse.json({ success: false, error: 'Forbidden - You can only delete your own requests' }, { status: 403 })
     }
 

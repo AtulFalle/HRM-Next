@@ -40,7 +40,7 @@ export async function GET(
     }
 
     // Check permissions - employees can only download their own payslips
-    if (!userContext.isManagerOrAdmin() && payslip.employeeId !== userContext.user.employee?.id) {
+    if (!userContext.isManagerOrAdmin?.() && payslip.employeeId !== userContext.user?.employee?.id) {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
@@ -73,7 +73,40 @@ export async function GET(
     }
 
     // Generate PDF
-    const pdf = generatePayslipPDF(payslip, calculationResult)
+    const pdf = generatePayslipPDF({
+      id: payslip.id,
+      employee: {
+        name: `${payslip.employee.firstName} ${payslip.employee.lastName}`,
+        email: payslip.employee.user.email,
+        employeeId: payslip.employee.employeeId
+      },
+      month: payslip.month,
+      year: payslip.year,
+      status: payslip.status,
+      basicSalary: Number(payslip.payroll.basicSalary),
+      allowances: Number(payslip.payroll.allowances),
+      deductions: Number(payslip.payroll.deductions),
+      netSalary: Number(payslip.payroll.netSalary)
+    }, {
+      basicSalary: calculationResult.basicSalary,
+      allowances: calculationResult.allowances,
+      deductions: calculationResult.totalDeductions,
+      netSalary: calculationResult.netSalary,
+      workingDays: 0,
+      presentDays: 0,
+      hra: 0,
+      variablePay: 0,
+      overtime: 0,
+      bonus: 0,
+      totalEarnings: 0,
+      pf: 0,
+      esi: 0,
+      tax: 0,
+      insurance: 0,
+      leaveDeduction: 0,
+      otherDeductions: 0,
+      totalDeductions: 0
+    })
 
     // Update payslip download status
     await prisma.payslip.update({
@@ -94,7 +127,7 @@ export async function GET(
           payslipId: payslip.id,
           fileName: payslip.fileName,
         },
-        performedBy: userContext.user.id,
+        performedBy: userContext.user?.id || '',
       },
     })
 
@@ -129,6 +162,20 @@ function generatePayslipPDF(payslip: {
   deductions: number
   netSalary: number
 }, calculationResult: {
+  workingDays: number
+  presentDays: number
+  hra: number
+  variablePay: number
+  overtime: number
+  bonus: number
+  totalEarnings: number
+  pf: number
+  esi: number
+  tax: number
+  insurance: number
+  leaveDeduction: number
+  otherDeductions: number
+  totalDeductions: number
   basicSalary: number
   allowances: number
   deductions: number
@@ -197,10 +244,8 @@ function generatePayslipPDF(payslip: {
   pdf.setFont('helvetica', 'normal')
   const employeeInfo = [
     ['Employee ID:', payslip.employee.employeeId],
-    ['Name:', `${payslip.employee.firstName} ${payslip.employee.lastName}`],
-    ['Department:', payslip.employee.department.name],
-    ['Position:', payslip.employee.position],
-    ['Date of Joining:', formatDate(payslip.employee.hireDate)],
+    ['Name:', payslip.employee.name],
+    ['Email:', payslip.employee.email],
   ]
 
   employeeInfo.forEach(([label, value]) => {
@@ -222,7 +267,7 @@ function generatePayslipPDF(payslip: {
   const payrollInfo = [
     ['Pay Period:', `${getMonthName(payslip.month)} ${payslip.year}`],
     ['Pay Date:', formatDate(new Date())],
-    ['Status:', payslip.payroll.status],
+    ['Status:', payslip.status],
     ['Working Days:', calculationResult.workingDays.toString()],
     ['Present Days:', calculationResult.presentDays.toString()],
   ]
@@ -257,7 +302,7 @@ function generatePayslipPDF(payslip: {
   }
 
   tableData.push(['', ''])
-  tableData.push(['TOTAL EARNINGS', formatCurrency(calculationResult.totalEarnings)])
+  tableData.push(['TOTAL EARNINGS', formatCurrency(Number(calculationResult.totalEarnings))])
 
   // Deductions
   tableData.push(['', ''])

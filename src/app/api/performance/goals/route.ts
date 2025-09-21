@@ -14,17 +14,6 @@ const createGoalSchema = z.object({
   endDate: z.string().transform((str) => new Date(str)),
 })
 
-const updateGoalSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  target: z.string().optional(),
-  category: z.enum(['PERFORMANCE', 'DEVELOPMENT', 'BEHAVIORAL', 'PROJECT', 'SKILL', 'OTHER']).optional(),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-  status: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ON_HOLD']).optional(),
-  progress: z.number().min(0).max(100).optional(),
-  startDate: z.string().transform((str) => new Date(str)).optional(),
-  endDate: z.string().transform((str) => new Date(str)).optional(),
-})
 
 // GET /api/performance/goals - Get all goals for the current user
 export async function GET(request: NextRequest) {
@@ -57,7 +46,15 @@ export async function GET(request: NextRequest) {
     }
 
     const goals = await prisma.performanceGoal.findMany({
-      where,
+      where: {
+        employee: { userId: session.user.id },
+        ...(where.status && {
+          status: where.status as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD',
+        }),
+        ...(where.category && {
+          category: where.category as 'PERFORMANCE' | 'DEVELOPMENT' | 'BEHAVIORAL' | 'PROJECT' | 'SKILL' | 'OTHER',
+        }),
+      },
       include: {
         employee: {
           include: {

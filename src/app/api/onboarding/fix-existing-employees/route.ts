@@ -12,7 +12,7 @@ export async function POST() {
     }
 
     // Only admin can run this fix
-    if (userContext.user.role !== 'ADMIN') {
+    if (userContext.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
@@ -56,7 +56,7 @@ export async function POST() {
           await prisma.onboardingStep.create({
             data: {
               submissionId: onboardingSubmission.id,
-              stepType: stepType as 'PERSONAL_INFO' | 'BANKING_DETAILS' | 'DOCUMENTS' | 'BACKGROUND_VERIFICATION' | 'COMPLETED',
+              stepType: stepType as 'PERSONAL_INFORMATION' | 'BANKING_DETAILS' | 'DOCUMENTS' | 'BACKGROUND_VERIFICATION',
               status: 'PENDING'
             }
           })

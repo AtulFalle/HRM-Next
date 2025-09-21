@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getUserContext } from '@/lib/auth-utils'
 import { z } from 'zod'
-import { PayrollCalculator } from '@/lib/payroll-calculator'
 
 const generatePayslipSchema = z.object({
   employeeId: z.string().min(1, 'Employee ID is required'),
@@ -31,8 +30,8 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = {}
 
     // If not admin/manager, only show own payslips
-    if (!userContext.isManagerOrAdmin()) {
-      if (!userContext.user.employee?.id) {
+    if (!userContext.isManagerOrAdmin?.() || typeof userContext.isManagerOrAdmin !== 'function') {
+      if (!userContext.user?.employee?.id) {
         return NextResponse.json({ success: false, error: 'Employee record not found' }, { status: 404 })
       }
       where.employeeId = userContext.user.employee.id
@@ -41,7 +40,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (month) {
-      where.month = parseInt(month)
+      const parsedMonth = parseInt(month)
+      if (!isNaN(parsedMonth)) {
+        where.month = parsedMonth
+      }
     }
     if (year) {
       where.year = parseInt(year)
@@ -97,7 +99,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only managers and admins can generate payslips
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.() ) {
       return NextResponse.json({ success: false, error: 'Forbidden - Manager or Admin access required' }, { status: 403 })
     }
 
@@ -234,7 +236,7 @@ export async function POST(request: NextRequest) {
     console.error('Error generating payslip:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error.issues },
         { status: 400 }
       )
     }

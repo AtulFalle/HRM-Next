@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { 
   UserPlus, 
@@ -11,19 +10,13 @@ import {
   Calendar, 
   Clock, 
   DollarSign,
-  FileText,
   CheckCircle,
   XCircle,
-  AlertCircle,
   Bell,
-  Eye,
-  Download,
   Edit,
-  Trash2,
   Settings,
   Shield,
   Mail,
-  Phone
 } from 'lucide-react'
 
 interface ActivityEvent {
@@ -61,11 +54,7 @@ export function ActivityTimeline({
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState<string>('all')
 
-  useEffect(() => {
-    fetchActivities()
-  }, [filter, entityType])
-
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({
@@ -85,7 +74,11 @@ export function ActivityTimeline({
     } finally {
       setLoading(false)
     }
-  }
+  }, [limit, filter, entityType])
+
+  useEffect(() => {
+    fetchActivities()
+  }, [fetchActivities])
 
   const getActivityIcon = (type: string, action: string) => {
     const iconMap = {

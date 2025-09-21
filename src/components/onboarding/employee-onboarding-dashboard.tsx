@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -325,7 +324,7 @@ export function EmployeeOnboardingDashboard() {
                         </div>
                       </div>
                     </TabsTrigger>
-                    {submission.steps?.map((step, index) => {
+                    {submission.steps?.map((step) => {
                       const config = stepConfig[step.stepType as keyof typeof stepConfig]
                       const status = getStepStatus(step)
                       const Icon = config.icon

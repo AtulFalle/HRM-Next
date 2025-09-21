@@ -14,8 +14,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userContext = await getUserContext(request)
-    if (!userContext.isManagerOrAdmin()) {
+    const userContext = await getUserContext()
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -64,8 +64,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userContext = await getUserContext(request)
-    if (!userContext.isManagerOrAdmin()) {
+    const userContext = await getUserContext()
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -84,7 +84,7 @@ export async function PUT(
     }
 
     // Check permissions - only managers and admins can approve/reject
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Manager or Admin access required' }, { status: 403 })
     }
 
@@ -106,10 +106,10 @@ export async function PUT(
     }
 
     if (validatedData.status === 'APPROVED') {
-      updateData.approvedBy = userContext.user.id
+      updateData.approvedBy = userContext.user?.id || ''
       updateData.approvedAt = new Date()
     } else if (validatedData.status === 'REJECTED') {
-      updateData.rejectedBy = userContext.user.id
+      updateData.rejectedBy = userContext.user?.id || ''
       updateData.rejectedAt = new Date()
       updateData.rejectionReason = validatedData.rejectionReason
     }
@@ -117,7 +117,14 @@ export async function PUT(
     // Update variable pay entry
     const updatedEntry = await prisma.variablePayEntry.update({
       where: { id },
-      data: updateData,
+      data: {
+        status: updateData.status as 'PENDING' | 'APPROVED' | 'REJECTED',
+        ...(updateData.approvedBy && { approvedBy: updateData.approvedBy }),
+        ...(updateData.approvedAt && { approvedAt: updateData.approvedAt }),
+        ...(updateData.rejectedBy && { rejectedBy: updateData.rejectedBy }),
+        ...(updateData.rejectedAt && { rejectedAt: updateData.rejectedAt }),
+        ...(updateData.rejectionReason && { rejectionReason: updateData.rejectionReason }),
+      },
       include: {
         employee: {
           include: {
@@ -157,7 +164,7 @@ export async function PUT(
     console.error('Error updating variable pay entry:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error.issues },
         { status: 400 }
       )
     }
@@ -174,8 +181,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userContext = await getUserContext(request)
-    if (!userContext.isManagerOrAdmin()) {
+    const userContext = await getUserContext()
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 

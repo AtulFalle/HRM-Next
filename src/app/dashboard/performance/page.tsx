@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Target, TrendingUp, Calendar } from 'lucide-react'
 import { GoalSettingInterface } from '@/components/performance/GoalSettingInterface'
@@ -19,7 +18,6 @@ interface PerformanceStats {
 }
 
 export default function PerformancePage() {
-  const { data: session } = useSession()
   const [stats, setStats] = useState<PerformanceStats>({
     totalGoals: 0,
     completedGoals: 0,
@@ -123,7 +121,7 @@ export default function PerformancePage() {
 
         {/* Reviews Tab */}
         <TabsContent value="reviews" className="space-y-6">
-          <PerformanceReviews onReviewUpdate={fetchPerformanceStats} />
+          <PerformanceReviews />
         </TabsContent>
 
         {/* Review Cycles Tab */}

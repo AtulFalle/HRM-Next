@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { 
@@ -84,10 +85,11 @@ export function ImagePreview({
         
         {/* Image or file preview */}
         {isImage && !imageError ? (
-          <img
+          <Image
             src={src}
             alt={alt}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
             onError={() => setImageError(true)}
           />
         ) : (

@@ -12,9 +12,10 @@ const updateProgressSchema = z.object({
 // POST /api/performance/goals/[id]/updates - Add a progress update to a goal
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -26,7 +27,7 @@ export async function POST(
     // Check if goal exists and belongs to user
     const goal = await prisma.performanceGoal.findFirst({
       where: {
-        id: params.id,
+        id,
         employee: {
           userId: session.user.id
         }
@@ -40,7 +41,7 @@ export async function POST(
     // Create the update
     const update = await prisma.goalUpdate.create({
       data: {
-        goalId: params.id,
+        goalId: id,
         updateText: validatedData.updateText,
         progress: validatedData.progress,
         updatedBy: session.user.id
@@ -56,7 +57,7 @@ export async function POST(
 
     // Update the goal's progress
     await prisma.performanceGoal.update({
-      where: { id: params.id },
+      where: { id },
       data: { progress: validatedData.progress }
     })
 

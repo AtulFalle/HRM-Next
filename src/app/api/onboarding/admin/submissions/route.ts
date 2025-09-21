@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getUserContext } from '@/lib/auth-utils'
 
@@ -9,7 +7,7 @@ export async function GET(request: NextRequest) {
     // Get user context - always use proper authentication
     const userContext = await getUserContext()
     
-    if (!userContext || !userContext.isManagerOrAdmin()) {
+    if (!userContext || !userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

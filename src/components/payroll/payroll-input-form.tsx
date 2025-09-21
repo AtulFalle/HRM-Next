@@ -1,14 +1,13 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
+
 import { 
   Dialog,
   DialogContent,
@@ -19,9 +18,6 @@ import {
 } from '@/components/ui/dialog'
 import { 
   Calculator,
-  DollarSign,
-  Minus,
-  Plus,
   Save,
   X
 } from 'lucide-react'
@@ -74,7 +70,12 @@ export function PayrollInputForm({
   year = new Date().getFullYear(),
   initialData 
 }: PayrollInputFormProps) {
-  const [employees, setEmployees] = useState<{ id: string; name: string; email: string; department?: { name: string } }[]>([])
+  const [employees, setEmployees] = useState<{
+    id: string
+    name: string
+    email: string
+    department?: { name: string }
+  }[]>([])
   const [loading, setLoading] = useState(false)
   const [calculations, setCalculations] = useState({
     totalEarnings: 0,
@@ -90,7 +91,7 @@ export function PayrollInputForm({
     reset,
     formState: { errors },
   } = useForm<PayrollInputFormData>({
-    resolver: zodResolver(payrollInputSchema),
+    resolver: zodResolver(payrollInputSchema) as never,
     defaultValues: {
       employeeId: employeeId || '',
       month,
@@ -151,9 +152,19 @@ export function PayrollInputForm({
     }
   }, [isOpen])
 
+  const calculateTotals = useCallback(() => {
+    const { basicSalary, hra, variablePay, overtime, bonus, allowances, pf, esi, tax, insurance, leaveDeduction, otherDeductions } = calculationFields
+
+    const totalEarnings = basicSalary + hra + variablePay + overtime + bonus + allowances
+    const totalDeductions = pf + esi + tax + insurance + leaveDeduction + otherDeductions
+    const netSalary = totalEarnings - totalDeductions
+
+    setCalculations({ totalEarnings, totalDeductions, netSalary })
+  }, [calculationFields])
+
   useEffect(() => {
     calculateTotals()
-  }, [calculationFields])
+  }, [calculationFields, calculateTotals])
 
   const fetchEmployees = async () => {
     try {
@@ -165,16 +176,6 @@ export function PayrollInputForm({
     } catch (error) {
       console.error('Error fetching employees:', error)
     }
-  }
-
-  const calculateTotals = () => {
-    const { basicSalary, hra, variablePay, overtime, bonus, allowances, pf, esi, tax, insurance, leaveDeduction, otherDeductions } = calculationFields
-
-    const totalEarnings = basicSalary + hra + variablePay + overtime + bonus + allowances
-    const totalDeductions = pf + esi + tax + insurance + leaveDeduction + otherDeductions
-    const netSalary = totalEarnings - totalDeductions
-
-    setCalculations({ totalEarnings, totalDeductions, netSalary })
   }
 
   const onSubmit = async (data: PayrollInputFormData) => {
@@ -241,7 +242,7 @@ export function PayrollInputForm({
                   <SelectContent>
                     {employees.map((employee) => (
                       <SelectItem key={employee.id} value={employee.id}>
-                        {employee.firstName} {employee.lastName} ({employee.employeeId})
+                        {employee.name} ({employee.id})
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react'
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -32,7 +31,7 @@ import {
   Filter,
   Download
 } from 'lucide-react'
-import { AccessibleTable, AccessibleButton, ScreenReaderOnly, AccessibleLoading, AccessibleError } from './accessibility-utils'
+import { AccessibleTable, ScreenReaderOnly, AccessibleLoading } from './accessibility-utils'
 
 interface Column<T> {
   key: string

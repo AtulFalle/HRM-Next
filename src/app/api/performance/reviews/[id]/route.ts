@@ -15,16 +15,17 @@ const updateReviewSchema = z.object({
 // GET /api/performance/reviews/[id] - Get a specific review
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const review = await prisma.performanceReview.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         employee: {
           include: {
@@ -81,9 +82,10 @@ export async function GET(
 // PUT /api/performance/reviews/[id] - Update a review
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -94,7 +96,7 @@ export async function PUT(
 
     // Check if review exists and user has access
     const existingReview = await prisma.performanceReview.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { 
         id: true,
         employeeId: true,
@@ -127,7 +129,7 @@ export async function PUT(
     }
 
     const review = await prisma.performanceReview.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...validatedData,
         reviewedAt: validatedData.status === 'COMPLETED' ? new Date() : undefined
@@ -177,9 +179,10 @@ export async function PUT(
 // DELETE /api/performance/reviews/[id] - Delete a review
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -196,7 +199,7 @@ export async function DELETE(
     }
 
     await prisma.performanceReview.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Review deleted successfully' })

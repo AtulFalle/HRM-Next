@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DataTable } from '@/components/ui/data-table'
+import type { PayrollCorrectionRequestWithEmployee } from '@/types'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { 
   Plus, 
@@ -23,7 +24,6 @@ import {
   Lock
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { PayslipViewer } from './payslip-viewer'
 import { PayrollInputForm } from './payroll-input-form'
 import { PayrollStatsCards } from './admin/PayrollStatsCards'
 import { PayrollCycleTable } from './admin/PayrollCycleTable'
@@ -33,9 +33,7 @@ import { ValidationErrorDrawer } from './admin/ValidationErrorDrawer'
 import type { 
   PayrollDashboardStats, 
   PayrollInputWithEmployee, 
-  VariablePayEntryWithEmployee,
-  PayrollCorrectionRequestWithEmployee,
-  PayrollWithEmployee
+  VariablePayEntryWithEmployee
 } from '@/types'
 
 interface PayrollCycle {
@@ -69,7 +67,7 @@ export function PayrollAdminDashboard({ initialStats }: PayrollAdminDashboardPro
   const [payrollInputs, setPayrollInputs] = useState<PayrollInputWithEmployee[]>([])
   const [variablePayEntries, setVariablePayEntries] = useState<VariablePayEntryWithEmployee[]>([])
   const [correctionRequests, setCorrectionRequests] = useState<PayrollCorrectionRequestWithEmployee[]>([])
-  const [payslips, setPayslips] = useState<PayrollWithEmployee[]>([])
+  const [payslips, setPayslips] = useState<unknown[]>([])
   const [payrollCycles, setPayrollCycles] = useState<PayrollCycle[]>([])
   const [validationErrors, setValidationErrors] = useState<PayrollValidationError[]>([])
   const [loading, setLoading] = useState(false)
@@ -78,23 +76,14 @@ export function PayrollAdminDashboard({ initialStats }: PayrollAdminDashboardPro
 
   // Form states
   const [showPayrollInputDialog, setShowPayrollInputDialog] = useState(false)
-  const [showProcessPayrollDialog, setShowProcessPayrollDialog] = useState(false)
-  const [showGeneratePayslipDialog, setShowGeneratePayslipDialog] = useState(false)
   const [showNewCycleDialog, setShowNewCycleDialog] = useState(false)
   const [showPreviewDialog, setShowPreviewDialog] = useState(false)
   const [showValidationDrawer, setShowValidationDrawer] = useState(false)
   const [showFinalizeDialog, setShowFinalizeDialog] = useState(false)
-  const [selectedEmployee, setSelectedEmployee] = useState<{ id: string; name: string; email: string } | null>(null)
   const [selectedCycle, setSelectedCycle] = useState<PayrollCycle | null>(null)
   const [selectedError, setSelectedError] = useState<PayrollValidationError | null>(null)
 
-  useEffect(() => {
-    fetchDashboardData()
-    fetchPayrollCycles()
-    fetchValidationErrors()
-  }, [selectedMonth, selectedYear])
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     setLoading(true)
     try {
       const [statsRes, inputsRes, variablePayRes, correctionsRes, payslipsRes] = await Promise.all([
@@ -124,7 +113,13 @@ export function PayrollAdminDashboard({ initialStats }: PayrollAdminDashboardPro
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedMonth, selectedYear])
+
+  useEffect(() => {
+    fetchDashboardData()
+    fetchPayrollCycles()
+    fetchValidationErrors()
+  }, [fetchDashboardData])
 
   const fetchPayrollCycles = async () => {
     try {
@@ -173,36 +168,6 @@ export function PayrollAdminDashboard({ initialStats }: PayrollAdminDashboardPro
     }
   }
 
-  const handleProcessPayroll = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/payroll/process', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          month: selectedMonth,
-          year: selectedYear,
-          includeVariablePay: true,
-          includeAttendance: true,
-          includeStatutoryDeductions: true,
-        }),
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        toast.success(`Payroll processed for ${data.data.processed} employees`)
-        fetchDashboardData()
-      } else {
-        throw new Error(data.error)
-      }
-    } catch (error) {
-      console.error('Error processing payroll:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to process payroll')
-    } finally {
-      setLoading(false)
-      setShowProcessPayrollDialog(false)
-    }
-  }
 
   const handleCreateNewCycle = async (month: number, year: number, notes?: string) => {
     try {
@@ -303,45 +268,7 @@ export function PayrollAdminDashboard({ initialStats }: PayrollAdminDashboardPro
     }
   }
 
-  const handleBulkUpload = async (file: File) => {
-    try {
-      // Mock implementation - replace with actual API call
-      toast.success(`Bulk upload completed: ${file.name}`)
-    } catch (error) {
-      console.error('Error bulk uploading:', error)
-      toast.error('Failed to upload file')
-    }
-  }
-
-  const handleGeneratePayslip = async (employeeId: string) => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/payroll/payslips', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          employeeId,
-          month: selectedMonth,
-          year: selectedYear,
-        }),
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        toast.success('Payslip generated successfully')
-        fetchDashboardData()
-      } else {
-        throw new Error(data.error)
-      }
-    } catch (error) {
-      console.error('Error generating payslip:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to generate payslip')
-    } finally {
-      setLoading(false)
-      setShowGeneratePayslipDialog(false)
-    }
-  }
-
+ 
   const handleApproveVariablePay = async (entryId: string) => {
     try {
       const response = await fetch(`/api/payroll/variable-pay/${entryId}`, {

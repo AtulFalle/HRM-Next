@@ -3,10 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { DashboardOverview } from '@/components/dashboard/dashboard-overview'
 import { ModernCard, StatCard, FeatureCard } from '@/components/ui/modern-card'
-import { ModernButton, ActionButton } from '@/components/ui/modern-button'
-import { UserPlus, FileText, ArrowRight, DollarSign, Calculator, Receipt, Users, Calendar, Settings, TrendingUp, Activity, AlertCircle } from 'lucide-react'
-import Link from 'next/link'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { UserPlus, FileText, DollarSign, Calculator, Receipt, Users, Settings, TrendingUp, Activity } from 'lucide-react'
 
 export default function AdminDashboardPage() {
   const { data: session } = useSession()
@@ -53,7 +50,6 @@ export default function AdminDashboardPage() {
           description="+12 this month"
           icon={<Users className="h-5 w-5" />}
           trend={{ value: 8.2, isPositive: true }}
-          animation="slide-up"
         />
         <StatCard
           title="Active Onboardings"
@@ -61,7 +57,6 @@ export default function AdminDashboardPage() {
           description="3 pending review"
           icon={<FileText className="h-5 w-5" />}
           trend={{ value: 15.3, isPositive: true }}
-          animation="slide-up"
         />
         <StatCard
           title="Payroll Processed"
@@ -69,7 +64,6 @@ export default function AdminDashboardPage() {
           description="This month"
           icon={<DollarSign className="h-5 w-5" />}
           trend={{ value: 5.7, isPositive: true }}
-          animation="slide-up"
         />
         <StatCard
           title="System Health"
@@ -77,7 +71,6 @@ export default function AdminDashboardPage() {
           description="All systems operational"
           icon={<Activity className="h-5 w-5" />}
           trend={{ value: 0.1, isPositive: true }}
-          animation="slide-up"
         />
       </div>
 

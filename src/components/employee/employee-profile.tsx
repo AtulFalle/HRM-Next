@@ -231,11 +231,18 @@ export function EmployeeProfile({ employee, onEdit }: EmployeeProfileProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <div className="text-sm text-gray-500">Emergency Contact</div>
-                    <div className="font-medium">{employee.emergencyContact || 'N/A'}</div>
+                    <div className="font-medium">
+                      {employee.emergencyContact 
+                        ? `${employee.emergencyContact.name} (${employee.emergencyContact.relationship})`
+                        : 'N/A'
+                      }
+                    </div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-500">Emergency Phone</div>
-                    <div className="font-medium">{employee.emergencyPhone || 'N/A'}</div>
+                    <div className="font-medium">
+                      {employee.emergencyContact?.phone || 'N/A'}
+                    </div>
                   </div>
                 </div>
               </CardContent>

@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { DashboardOverview } from '@/components/dashboard/dashboard-overview'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { UserPlus, FileText, ArrowRight, CheckCircle, AlertCircle, DollarSign } from 'lucide-react'
+import { UserPlus, FileText, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ManagerDashboard() {

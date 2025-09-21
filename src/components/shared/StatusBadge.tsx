@@ -30,7 +30,6 @@ export function StatusBadge({
       
       // Payroll statuses
       'DRAFT': { variant: 'outline', className: 'bg-gray-100 text-gray-800' },
-      'IN_PROGRESS': { variant: 'secondary', className: 'bg-blue-100 text-blue-800' },
       'PENDING_APPROVAL': { variant: 'outline', className: 'bg-yellow-100 text-yellow-800' },
       'FINALIZED': { variant: 'default', className: 'bg-green-100 text-green-800' },
       'LOCKED': { variant: 'destructive', className: 'bg-red-100 text-red-800' },

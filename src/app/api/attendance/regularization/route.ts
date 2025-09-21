@@ -21,12 +21,12 @@ export async function GET(request: NextRequest) {
       // Specific employee requested
       if (employeeId !== userContext?.user?.employee?.id) {
         // Only managers and admins can view other employees' requests
-        if (userContext && !userContext?.isManagerOrAdmin()) {
+        if (!userContext?.isManagerOrAdmin?.()) {
           return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
         }
         targetEmployeeId = employeeId
       }
-    } else if (userContext && userContext?.isManagerOrAdmin()) {
+    } else if (userContext?.isManagerOrAdmin?.()) {
       // No specific employee requested and user is manager/admin - show all employees
       isAdminView = true
       targetEmployeeId = undefined

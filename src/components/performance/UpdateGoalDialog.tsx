@@ -15,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -100,26 +99,34 @@ export function UpdateGoalDialog({ isOpen, onClose, onSubmit, goal }: UpdateGoal
 
   useEffect(() => {
     if (goal) {
+      // Only allow valid statuses for updateGoalSchema (exclude 'DRAFT')
+      const allowedStatuses = ['ACTIVE', 'COMPLETED', 'CANCELLED', 'ON_HOLD'] as const;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const status = allowedStatuses.includes(goal.status as any)
+        ? (goal.status as typeof allowedStatuses[number])
+        : 'ACTIVE';
+
       form.reset({
         title: goal.title,
         description: goal.description,
         target: goal.target,
-        category: goal.category as 'PERSONAL' | 'PROFESSIONAL' | 'SKILL_DEVELOPMENT' | 'PROJECT_BASED',
+        category: goal.category as 'PERFORMANCE' | 'DEVELOPMENT' | 'BEHAVIORAL' | 'PROJECT' | 'SKILL' | 'OTHER',
         priority: goal.priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
-        status: goal.status as 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD',
+        status,
         startDate: new Date(goal.startDate),
         endDate: new Date(goal.endDate),
-      })
+      });
     }
-  }, [goal, form])
+  }, [goal, form]);
 
   const handleSubmit = async (data: z.infer<typeof updateGoalSchema>) => {
     try {
       setIsSubmitting(true)
-      await onSubmit({
+      onSubmit({
         ...data,
-        startDate: data.startDate.toISOString(),
-        endDate: data.endDate.toISOString(),
+        startDate: data.startDate,
+        endDate: data.endDate,
+        id: ''
       })
     } catch (error) {
       console.error('Error updating goal:', error)

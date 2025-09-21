@@ -24,7 +24,6 @@ interface CorrectionRequestFormProps {
 export function CorrectionRequestForm({ 
   isOpen, 
   onClose, 
-  payroll, 
   onSubmit 
 }: CorrectionRequestFormProps) {
   const [type, setType] = useState('')

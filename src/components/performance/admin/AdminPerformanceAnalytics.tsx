@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { BarChart3, TrendingUp, Target, Star, Award, AlertTriangle } from 'lucide-react'
+import { BarChart3, TrendingUp, Target, Star, Award } from 'lucide-react'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
@@ -92,10 +92,10 @@ export function AdminPerformanceAnalytics() {
           goalsCompleted: completedGoals,
           totalGoals: employeeGoals.length
         }
-      }).filter(emp => emp.totalGoals > 0)
+      }).filter((emp: { totalGoals: number }) => emp.totalGoals > 0)
       
       const topPerformers = employeePerformance
-        .sort((a, b) => b.progress - a.progress)
+        .sort((a: { progress: number }, b: { progress: number }) => b.progress - a.progress)
         .slice(0, 5)
       
       // Department stats

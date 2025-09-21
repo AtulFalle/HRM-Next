@@ -1,20 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, ReactNode } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { 
   Calendar, 
   CheckCircle, 
   XCircle, 
   AlertCircle, 
   Clock,
-  MapPin,
   FileText,
   Loader2,
   ChevronLeft,
@@ -43,11 +42,15 @@ interface AttendanceData {
   regularizedBy: string | null
   regularizedAt: string | null
   employee?: {
+    department: {
+      name: string
+    }
     id: string
     employeeId: string
     firstName: string
     lastName: string
     user: {
+      name: string
       email: string
     }
   }
@@ -80,7 +83,7 @@ export function AttendanceTable({ employeeId, isAdminView = false }: AttendanceT
   const [submittingRegularization, setSubmittingRegularization] = useState(false)
 
   // Fetch attendance data
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     try {
       const month = currentMonth.getMonth() + 1
       const year = currentMonth.getFullYear()
@@ -102,7 +105,7 @@ export function AttendanceTable({ employeeId, isAdminView = false }: AttendanceT
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentMonth, employeeId])
 
   // Fetch regularization requests
   const fetchRegularizationRequests = async () => {
@@ -121,7 +124,7 @@ export function AttendanceTable({ employeeId, isAdminView = false }: AttendanceT
   useEffect(() => {
     fetchAttendance()
     fetchRegularizationRequests()
-  }, [currentMonth])
+  }, [fetchAttendance])
 
   // Navigate months
   const goToPreviousMonth = () => {
@@ -219,14 +222,43 @@ export function AttendanceTable({ employeeId, isAdminView = false }: AttendanceT
         const empId = record.employee.id
         if (!acc[empId]) {
           acc[empId] = {
-            employee: record.employee,
+            employee: {
+              id: record.employee.id,
+              name: `${record.employee.firstName} ${record.employee.lastName}`,
+              email: record.employee.user.email,
+              department: record.employee.department
+                ? { name: record.employee.department.name }
+                : undefined,
+              firstName: undefined,
+              lastName: record.employee.lastName,
+              employeeId: record.employee.employeeId,
+              user: {
+                name: record.employee.user.name,
+                email: record.employee.user.email
+              }
+            },
             records: []
           }
         }
         acc[empId].records.push(record)
       }
       return acc
-    }, {} as Record<string, { employee: { id: string; name: string; email: string; department?: { name: string } }, records: AttendanceData[] }>) : 
+    }, {} as Record<string, { 
+      employee: {
+        firstName: ReactNode
+        lastName: ReactNode
+        employeeId: ReactNode
+        user: {
+          name: string
+          email: string
+        } 
+        id: string; 
+        name: string; 
+        email: string; 
+        department?: { name: string }; 
+      }, 
+      records: AttendanceData[] 
+    }>) : 
     null
 
   if (loading) {

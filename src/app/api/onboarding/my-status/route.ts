@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getUserContext } from '@/lib/auth-utils'
 
@@ -14,7 +12,7 @@ export async function GET() {
     }
 
     // Use the actual logged-in user's email
-    const userEmail = userContext.user.email
+    const userEmail = userContext.user?.email
     
     const submission = await prisma.onboardingSubmission.findUnique({
       where: { email: userEmail },

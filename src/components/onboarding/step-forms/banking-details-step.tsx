@@ -44,8 +44,7 @@ export function BankingDetailsStep({
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    setValue
+    formState: { errors }
   } = useForm<BankingDetailsForm>({
     resolver: zodResolver(bankingDetailsSchema),
     defaultValues: {

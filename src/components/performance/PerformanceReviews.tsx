@@ -43,11 +43,8 @@ interface Review {
   }
 }
 
-interface PerformanceReviewsProps {
-  onReviewUpdate: () => void
-}
 
-export function PerformanceReviews({ onReviewUpdate }: PerformanceReviewsProps) {
+export function PerformanceReviews() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all')

@@ -102,8 +102,9 @@ export function GoalSettingInterface({ onGoalUpdate }: GoalSettingInterfaceProps
     target: string
     category: string
     priority: string
-    startDate: string
-    endDate: string
+    status: string
+    startDate: Date
+    endDate: Date
   }) => {
     if (!selectedGoal) return
 
@@ -113,7 +114,11 @@ export function GoalSettingInterface({ onGoalUpdate }: GoalSettingInterfaceProps
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(goalData),
+        body: JSON.stringify({
+          ...goalData,
+          startDate: goalData.startDate.toISOString(),
+          endDate: goalData.endDate.toISOString(),
+        }),
       })
 
       if (response.ok) {
@@ -250,13 +255,8 @@ export function GoalSettingInterface({ onGoalUpdate }: GoalSettingInterfaceProps
               ? "You haven't set any goals yet. Create your first goal to get started."
               : `No ${filter} goals found.`
           }
-          action={
-            filter === 'all' ? (
-              <Button onClick={() => setShowCreateDialog(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Goal
-              </Button>
-            ) : undefined
+          onAction={
+            filter === 'all' ? () => setShowCreateDialog(true) : undefined
           }
         />
       ) : (
@@ -392,7 +392,15 @@ export function GoalSettingInterface({ onGoalUpdate }: GoalSettingInterfaceProps
           setShowProgressDialog(false)
           setSelectedGoal(null)
         }}
-        onSubmit={handleUpdateProgress}
+        onSubmit={(data) => {
+          if (selectedGoal) {
+            handleUpdateProgress({
+              goalId: selectedGoal.id,
+              progress: data.progress,
+              updateText: data.updateText,
+            })
+          }
+        }}
         goal={selectedGoal}
       />
     </div>

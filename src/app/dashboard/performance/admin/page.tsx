@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { BarChart3, Calendar, TrendingUp, Settings } from 'lucide-react'
 import { AdminReviewCycles } from '@/components/performance/admin/AdminReviewCycles'
@@ -21,7 +20,6 @@ interface AdminPerformanceStats {
 }
 
 export default function AdminPerformancePage() {
-  const { data: session } = useSession()
   const [stats, setStats] = useState<AdminPerformanceStats>({
     totalEmployees: 0,
     totalGoals: 0,
@@ -138,7 +136,7 @@ export default function AdminPerformancePage() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
-          <AdminPerformanceOverview onDataUpdate={fetchAdminPerformanceStats} />
+          <AdminPerformanceOverview />
         </TabsContent>
 
         {/* Review Cycles Tab */}

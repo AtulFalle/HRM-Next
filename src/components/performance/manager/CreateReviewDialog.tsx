@@ -15,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 
@@ -145,7 +143,15 @@ export function CreateReviewDialog({ isOpen, onClose, onSubmit }: CreateReviewDi
   const handleSubmit = async (data: z.infer<typeof createReviewSchema>) => {
     try {
       setIsSubmitting(true)
-      await onSubmit(data)
+      // Ensure all required fields are present and not undefined
+      const reviewData = {
+        ...data,
+        goalId: data.goalId ?? '',
+        comments: data.comments ?? '',
+        strengths: data.strengths ?? '',
+        improvements: data.improvements ?? '',
+      }
+      onSubmit(reviewData)
     } catch (error) {
       console.error('Error creating review:', error)
     } finally {

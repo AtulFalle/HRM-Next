@@ -23,11 +23,9 @@ interface EmployeePerformance {
   position: string
 }
 
-interface AdminPerformanceOverviewProps {
-  onDataUpdate: () => void
-}
 
-export function AdminPerformanceOverview({ onDataUpdate }: AdminPerformanceOverviewProps) {
+
+export function AdminPerformanceOverview() {
   const [employees, setEmployees] = useState<EmployeePerformance[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'high-performers' | 'needs-attention'>('all')
@@ -56,7 +54,15 @@ export function AdminPerformanceOverview({ onDataUpdate }: AdminPerformanceOverv
       const reviews = reviewsData.reviews || []
       
       // Process employee performance data
-      const employeePerformance = employeesData.employees?.map((employee: { id: string; user: { name: string }; department?: { name: string } }) => {
+      const employeePerformance = employeesData.employees?.map((employee: {
+        id: string;
+        position: string;
+        user: {
+          email: string;
+          name: string;
+        };
+        department?: { name: string };
+      }) => {
         const employeeGoals = goals.filter((goal: { employeeId: string }) => goal.employeeId === employee.id)
         const employeeReviews = reviews.filter((review: { employeeId: string }) => review.employeeId === employee.id)
         

@@ -90,22 +90,7 @@ export default function OnboardingManagementPage() {
     setIsDetailModalOpen(true)
   }
 
-  const handleReviewStep = (step: {
-    id: string
-    stepType: string
-    status: string
-    stepData: Record<string, unknown> | null
-    submittedAt: string | null
-    reviewedAt: string | null
-    reviewComments: string | null
-    rejectionReason: string | null
-  }) => {
-    setSelectedStep(step)
-    setReviewAction(null)
-    setReviewComments('')
-    setRejectionReason('')
-    setIsStepReviewModalOpen(true)
-  }
+
 
   const handleStepApproval = async () => {
     if (!selectedStep || !reviewAction) return
@@ -165,6 +150,10 @@ export default function OnboardingManagementPage() {
         </div>
       </div>
     )
+  }
+
+  function getStatusBadge(status?: string): import("react").ReactNode {
+    return <div>{status}</div>
   }
 
   return (

@@ -15,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -100,13 +99,12 @@ export function EditCycleDialog({ isOpen, onClose, onSubmit, cycle }: EditCycleD
   const handleSubmit = async (data: z.infer<typeof editCycleSchema>) => {
     try {
       setIsSubmitting(true)
-      await onSubmit({
+      onSubmit({
         ...data,
         startDate: data.startDate.toISOString(),
         endDate: data.endDate.toISOString(),
+        id: ''
       })
-    } catch (error) {
-      console.error('Error updating cycle:', error)
     } finally {
       setIsSubmitting(false)
     }

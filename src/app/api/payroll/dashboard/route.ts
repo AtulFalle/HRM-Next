@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: userContext.error || 'Unauthorized' }, { status: 401 })
     }
 
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Manager or Admin access required' }, { status: 403 })
     }
 

@@ -77,8 +77,10 @@ export function DocumentsStep({
         toast.success('File uploaded successfully')
       }
       reader.readAsDataURL(file)
-    } catch (error) {
-      toast.error('Failed to upload file')
+    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      toast.error('Failed to upload file',(e as any).message);
+    
     }
   }
 

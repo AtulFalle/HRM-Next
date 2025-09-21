@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { Prisma } from '@prisma/client'
 
 const createReviewSchema = z.object({
   employeeId: z.string().min(1, 'Employee ID is required'),
@@ -15,13 +16,6 @@ const createReviewSchema = z.object({
   improvements: z.string().optional(),
 })
 
-const updateReviewSchema = z.object({
-  rating: z.enum(['EXCEEDS_EXPECTATIONS', 'MEETS_EXPECTATIONS', 'BELOW_EXPECTATIONS', 'NEEDS_IMPROVEMENT']).optional(),
-  comments: z.string().optional(),
-  strengths: z.string().optional(),
-  improvements: z.string().optional(),
-  status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
-})
 
 // GET /api/performance/reviews - Get reviews (filtered by role)
 export async function GET(request: NextRequest) {
@@ -75,7 +69,13 @@ export async function GET(request: NextRequest) {
     }
 
     const reviews = await prisma.performanceReview.findMany({
-      where,
+      where: {
+        ...(where.employeeId && { employeeId: where.employeeId }),
+        ...(where.cycleId && { cycleId: where.cycleId }),
+        ...(where.status && {
+          status: where.status as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED',
+        }),
+      },
       include: {
         employee: {
           include: {

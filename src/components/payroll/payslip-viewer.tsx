@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DataTable } from '@/components/ui/data-table'
 import { PayslipTemplate } from './payslip-template'
 import { 
@@ -69,7 +69,7 @@ export function PayslipViewer({ payslips, loading = false, onRefresh }: PayslipV
     {
       key: 'employee',
       label: 'Employee',
-      render: (payslip: PayslipWithEmployee) => (
+      render: (value: unknown, payslip: PayslipWithEmployee) => (
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0">
             <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
@@ -90,7 +90,7 @@ export function PayslipViewer({ payslips, loading = false, onRefresh }: PayslipV
     {
       key: 'period',
       label: 'Period',
-      render: (payslip: PayslipWithEmployee) => (
+      render: (value: unknown, payslip: PayslipWithEmployee) => (
         <div className="flex items-center space-x-2">
           <Calendar className="w-4 h-4 text-gray-400" />
           <span>
@@ -105,17 +105,17 @@ export function PayslipViewer({ payslips, loading = false, onRefresh }: PayslipV
     {
       key: 'department',
       label: 'Department',
-      render: (payslip: PayslipWithEmployee) => (
+      render: (value: unknown, payslip: PayslipWithEmployee) => (
         <div className="flex items-center space-x-2">
           <Building className="w-4 h-4 text-gray-400" />
-          <span>{payslip.employee.department.name}</span>
+          <span>{payslip.employee.departmentId}</span>
         </div>
       ),
     },
     {
       key: 'netSalary',
       label: 'Net Salary',
-      render: (payslip: PayslipWithEmployee) => (
+      render: (value: unknown, payslip: PayslipWithEmployee) => (
         <div className="flex items-center space-x-2">
           <DollarSign className="w-4 h-4 text-green-600" />
           <span className="font-medium text-green-600">
@@ -132,7 +132,7 @@ export function PayslipViewer({ payslips, loading = false, onRefresh }: PayslipV
     {
       key: 'status',
       label: 'Status',
-      render: (payslip: PayslipWithEmployee) => (
+      render: (value: unknown, payslip: PayslipWithEmployee) => (
         <Badge 
           variant={payslip.status === 'DOWNLOADED' ? 'default' : 'secondary'}
         >
@@ -143,7 +143,7 @@ export function PayslipViewer({ payslips, loading = false, onRefresh }: PayslipV
     {
       key: 'generatedAt',
       label: 'Generated',
-      render: (payslip: PayslipWithEmployee) => (
+      render: (value: unknown, payslip: PayslipWithEmployee) => (
         <div className="text-sm text-gray-500">
           {new Date(payslip.generatedAt).toLocaleDateString('en-IN')}
         </div>
@@ -184,14 +184,13 @@ export function PayslipViewer({ payslips, loading = false, onRefresh }: PayslipV
       {/* Payslips Table */}
       <Card>
         <CardContent className="p-0">
-          <DataTable
+          <DataTable<PayslipWithEmployee>
             data={payslips}
             columns={columns}
-            actions={actions}
+            actions={actions as never}
             loading={loading}
             emptyMessage="No payslips found"
             searchable={true}
-            searchPlaceholder="Search by employee name or ID..."
           />
         </CardContent>
       </Card>
@@ -208,7 +207,10 @@ export function PayslipViewer({ payslips, loading = false, onRefresh }: PayslipV
           {selectedPayslip && (
             <div className="mt-4">
               <PayslipTemplate
-                payroll={selectedPayslip.payroll}
+                payroll={{
+                  ...selectedPayslip.payroll,
+                  employee: selectedPayslip.employee,
+                }}
                 calculationResult={{
                   basicSalary: Number(selectedPayslip.payroll.basicSalary),
                   hra: 0, // This would come from payroll input

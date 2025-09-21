@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getUserContext } from '@/lib/auth-utils'
 import { z } from 'zod'
@@ -128,7 +126,7 @@ export async function PUT(
       // Get user context for approval
       const userContext = await getUserContext()
       if (userContext) {
-        updateData.approvedBy = userContext.user.id
+        updateData.approvedBy = userContext.user?.id
       }
       updateData.approvedAt = new Date()
     }

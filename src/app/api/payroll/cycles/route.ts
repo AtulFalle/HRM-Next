@@ -9,10 +9,7 @@ const createPayrollCycleSchema = z.object({
   notes: z.string().optional(),
 })
 
-const updatePayrollCycleSchema = z.object({
-  status: z.enum(['DRAFT', 'IN_PROGRESS', 'PENDING_APPROVAL', 'FINALIZED', 'LOCKED']).optional(),
-  notes: z.string().optional(),
-})
+
 
 // GET /api/payroll/cycles - List payroll cycles
 export async function GET(request: NextRequest) {
@@ -22,7 +19,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: userContext.error || 'Unauthorized' }, { status: 401 })
     }
 
-    if (!userContext.isAdmin()) {
+    if (!userContext.isAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
@@ -34,10 +31,10 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10')
 
     // Build where clause
-    const where: { month?: number; year?: number; status?: string } = {}
+    const where: { month?: number; year?: number; status?: 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED' } = {}
     if (month) where.month = parseInt(month)
     if (year) where.year = parseInt(year)
-    if (status) where.status = status
+    if (status) where.status = status as 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED'
 
     // Get payroll cycles with aggregated data
     const cycles = await prisma.payroll.groupBy({
@@ -124,7 +121,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: userContext.error || 'Unauthorized' }, { status: 401 })
     }
 
-    if (!userContext.isAdmin()) {
+    if (!userContext.isAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
@@ -160,7 +157,7 @@ export async function POST(request: NextRequest) {
       allowances: 0,
       deductions: 0,
       netSalary: 0,
-      status: 'DRAFT' as const,
+      status: 'PENDING' as const,
     }))
 
     await prisma.payroll.createMany({
@@ -200,7 +197,7 @@ export async function POST(request: NextRequest) {
     console.error('Error creating payroll cycle:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid data', details: error.errors },
+        { success: false, error: 'Invalid data', details: error.issues },
         { status: 400 }
       )
     }

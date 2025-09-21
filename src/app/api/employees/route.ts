@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getUserContext } from '@/lib/auth-utils'
 import { z } from 'zod'
@@ -65,7 +63,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Only admin and managers can view all employees
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -153,8 +151,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Only admin can create employees
-    if (!userContext.isAdmin()) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (!userContext.isAdmin?.()) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 }) 
     }
 
     const body = await request.json()
@@ -285,7 +283,7 @@ export async function POST(request: NextRequest) {
         await tx.onboardingStep.create({
           data: {
             submissionId: onboardingSubmission.id,
-            stepType: stepType as 'PERSONAL_INFO' | 'BANKING_DETAILS' | 'DOCUMENTS' | 'BACKGROUND_VERIFICATION' | 'COMPLETED',
+            stepType: stepType as 'PERSONAL_INFORMATION' | 'BANKING_DETAILS' | 'DOCUMENTS' | 'BACKGROUND_VERIFICATION',
             status: 'PENDING'
           }
         })

@@ -17,7 +17,7 @@ export async function POST(
     // Get user context (handles both dev and prod modes)
     const userContext = await getUserContext()
     
-    if (!userContext || !userContext.isManagerOrAdmin()) {
+    if (!userContext || !userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

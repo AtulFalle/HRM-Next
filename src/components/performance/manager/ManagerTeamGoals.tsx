@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
 interface TeamGoal {
+  employeeId: string
   id: string
   title: string
   description: string
@@ -42,11 +43,7 @@ interface TeamGoal {
   }>
 }
 
-interface ManagerTeamGoalsProps {
-  onGoalUpdate: () => void
-}
-
-export function ManagerTeamGoals({ onGoalUpdate }: ManagerTeamGoalsProps) {
+export function ManagerTeamGoals() {
   const [goals, setGoals] = useState<TeamGoal[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')

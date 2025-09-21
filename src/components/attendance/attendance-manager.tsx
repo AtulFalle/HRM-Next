@@ -1,23 +1,14 @@
 'use client'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AttendanceCalendar } from './attendance-calendar'
 import { DataTable } from '@/components/ui/data-table'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle, 
-  Coffee, 
-  Home,
-  User,
   Calendar,
   TrendingUp
 } from 'lucide-react'
@@ -56,11 +47,7 @@ export function AttendanceManager({ employeeId, view = 'calendar' }: AttendanceM
   const [showMarkDialog, setShowMarkDialog] = useState(false)
   const [currentView, setCurrentView] = useState<'calendar' | 'table'>(view)
 
-  useEffect(() => {
-    fetchAttendanceRecords()
-  }, [employeeId])
-
-  const fetchAttendanceRecords = async () => {
+  const fetchAttendanceRecords = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -78,7 +65,11 @@ export function AttendanceManager({ employeeId, view = 'calendar' }: AttendanceM
     } finally {
       setLoading(false)
     }
-  }
+  }, [employeeId])
+
+  useEffect(() => {
+    fetchAttendanceRecords()
+  }, [fetchAttendanceRecords])
 
   const handleMarkAttendance = async (date: string, status: string) => {
     try {
@@ -122,22 +113,6 @@ export function AttendanceManager({ employeeId, view = 'calendar' }: AttendanceM
     }
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'PRESENT':
-        return <CheckCircle className="h-4 w-4 text-green-500" />
-      case 'ABSENT':
-        return <XCircle className="h-4 w-4 text-red-500" />
-      case 'LATE':
-        return <AlertCircle className="h-4 w-4 text-yellow-500" />
-      case 'HALF_DAY':
-        return <Coffee className="h-4 w-4 text-orange-500" />
-      case 'HOLIDAY':
-        return <Home className="h-4 w-4 text-blue-500" />
-      default:
-        return <Clock className="h-4 w-4 text-gray-400" />
-    }
-  }
 
   const getStatusBadge = (status: string) => {
     const variants = {

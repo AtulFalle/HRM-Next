@@ -17,8 +17,6 @@ import {
   XCircle,
   AlertCircle,
   Plus,
-  Eye,
-  Download,
   Bell,
   Settings,
   UserPlus,

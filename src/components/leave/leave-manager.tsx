@@ -1,9 +1,8 @@
 'use client'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -22,17 +21,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { 
-  Calendar, 
-  Clock, 
+
   CheckCircle, 
   XCircle, 
-  AlertCircle,
   Plus,
   Eye,
-  Edit,
   Trash2,
-  FileText,
-  User
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -83,11 +77,7 @@ export function LeaveManager({ employeeId }: LeaveManagerProps) {
     reason: '',
   })
 
-  useEffect(() => {
-    fetchLeaveRequests()
-  }, [employeeId])
-
-  const fetchLeaveRequests = async () => {
+  const fetchLeaveRequests = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -105,7 +95,11 @@ export function LeaveManager({ employeeId }: LeaveManagerProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [employeeId])
+
+  useEffect(() => {
+    fetchLeaveRequests()
+  }, [fetchLeaveRequests])
 
   const handleSubmitRequest = async () => {
     try {
@@ -346,7 +340,6 @@ export function LeaveManager({ employeeId }: LeaveManagerProps) {
   ]
 
   const canSubmitRequest = session?.user?.role === 'EMPLOYEE' || !employeeId
-  const canApprove = session?.user?.role === 'ADMIN' || session?.user?.role === 'MANAGER'
 
   return (
     <div className="space-y-6">

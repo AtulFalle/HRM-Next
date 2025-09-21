@@ -31,7 +31,7 @@ export async function PUT(
       where: {
         id: stepId,
         submission: {
-          email: userContext.user.email
+          email: userContext.user?.email
         }
       },
       include: {

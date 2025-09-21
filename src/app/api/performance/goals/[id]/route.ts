@@ -16,17 +16,14 @@ const updateGoalSchema = z.object({
   endDate: z.string().transform((str) => new Date(str)).optional(),
 })
 
-const updateProgressSchema = z.object({
-  updateText: z.string().min(1, 'Update text is required'),
-  progress: z.number().min(0).max(100, 'Progress must be between 0 and 100')
-})
 
 // GET /api/performance/goals/[id] - Get a specific goal
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -34,7 +31,7 @@ export async function GET(
 
     const goal = await prisma.performanceGoal.findFirst({
       where: {
-        id: params.id,
+        id,
         employee: {
           userId: session.user.id
         }
@@ -88,9 +85,10 @@ export async function GET(
 // PUT /api/performance/goals/[id] - Update a goal
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -102,7 +100,7 @@ export async function PUT(
     // Check if goal exists and belongs to user
     const existingGoal = await prisma.performanceGoal.findFirst({
       where: {
-        id: params.id,
+        id,
         employee: {
           userId: session.user.id
         }
@@ -114,7 +112,7 @@ export async function PUT(
     }
 
     const goal = await prisma.performanceGoal.update({
-      where: { id: params.id },
+      where: { id },
       data: validatedData,
       include: {
         employee: {
@@ -143,9 +141,10 @@ export async function PUT(
 // DELETE /api/performance/goals/[id] - Delete a goal
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -154,7 +153,7 @@ export async function DELETE(
     // Check if goal exists and belongs to user
     const existingGoal = await prisma.performanceGoal.findFirst({
       where: {
-        id: params.id,
+        id,
         employee: {
           userId: session.user.id
         }
@@ -166,7 +165,7 @@ export async function DELETE(
     }
 
     await prisma.performanceGoal.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Goal deleted successfully' })

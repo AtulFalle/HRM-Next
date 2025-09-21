@@ -15,8 +15,8 @@ const exportSchema = z.object({
 // POST /api/payroll/export - Export payroll data
 export async function POST(request: NextRequest) {
   try {
-    const userContext = await getUserContext(request)
-    if (!userContext.isAdmin()) {
+    const userContext = await getUserContext()
+    if (!userContext.isAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Unauthorized - Admin access required' }, { status: 403 })
     }
 
@@ -24,18 +24,21 @@ export async function POST(request: NextRequest) {
     const validatedData = exportSchema.parse(body)
 
     // Build where clause based on export parameters
-    const where: { 
+    const where: {
       month: number
       year: number
-      status?: string
+      status?: 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED'
       employeeId?: string
+      employee?: {
+        departmentId: string
+      }
     } = {
       month: validatedData.month,
       year: validatedData.year,
     }
 
     if (validatedData.status) {
-      where.status = validatedData.status
+      where.status = validatedData.status as 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED'
     }
 
     if (validatedData.departmentId) {
@@ -142,7 +145,7 @@ export async function POST(request: NextRequest) {
     console.error('Error exporting payroll data:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid data', details: error.errors },
+        { success: false, error: 'Invalid data', details: error.issues },
         { status: 400 }
       )
     }
@@ -154,7 +157,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Helper functions for different export formats
-async function getPayrollSummaryData(where: { month: number; year: number; status?: string; employeeId?: string }) {
+async function getPayrollSummaryData(where: { month: number; year: number; status?: 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED'; employeeId?: string }) {
   const payrolls = await prisma.payroll.findMany({
     where,
     include: {
@@ -185,7 +188,15 @@ async function getPayrollSummaryData(where: { month: number; year: number; statu
   }))
 }
 
-async function getEmployeeDetailsData(where: { month: number; year: number; status?: string; employeeId?: string }) {
+async function getEmployeeDetailsData(where: { 
+  month: number; 
+  year: number; 
+  status?: 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED'; 
+  employeeId?: string;
+  employee?: {
+    departmentId: string
+  }
+}) {
   const payrollInputs = await prisma.payrollInput.findMany({
     where: {
       payroll: where,
@@ -232,7 +243,15 @@ async function getEmployeeDetailsData(where: { month: number; year: number; stat
   }))
 }
 
-async function getVariablePayData(where: { month: number; year: number; status?: string; employeeId?: string }) {
+async function getVariablePayData(where: { 
+  month: number; 
+  year: number; 
+  status?: 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED'; 
+  employeeId?: string;
+  employee?: {
+    departmentId: string
+  }
+}) {
   const variablePayEntries = await prisma.variablePayEntry.findMany({
     where: {
       month: where.month,
@@ -278,7 +297,15 @@ async function getVariablePayData(where: { month: number; year: number; status?:
   }))
 }
 
-async function getCorrectionsData(where: { month: number; year: number; status?: string; employeeId?: string }) {
+async function getCorrectionsData(where: { 
+  month: number; 
+  year: number; 
+  status?: 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED'; 
+  employeeId?: string;
+  employee?: {
+    departmentId: string
+  }
+}) {
   const correctionRequests = await prisma.payrollCorrectionRequest.findMany({
     where: {
       payroll: where,
@@ -290,8 +317,8 @@ async function getCorrectionsData(where: { month: number; year: number; status?:
           department: true,
         },
       },
-      submitter: true,
-      approver: true,
+      requester: true,
+      reviewer: true,
     },
     orderBy: [
       { employee: { department: { name: 'asc' } } },
@@ -307,11 +334,11 @@ async function getCorrectionsData(where: { month: number; year: number; status?:
     'Description': request.description,
     'Requested Amount': request.requestedAmount ? Number(request.requestedAmount) : '',
     'Status': request.status,
-    'Submitted By': request.submitter?.name || '',
+    'Submitted By': request.requester?.name || '',
     'Submitted At': request.createdAt.toISOString().split('T')[0],
-    'Approved By': request.approver?.name || '',
-    'Approved At': request.approvedAt?.toISOString().split('T')[0] || '',
-    'Resolution Notes': request.resolutionNotes || '',
+    'Approved By': request.reviewer?.name || '',
+    'Approved At': request.reviewedAt?.toISOString().split('T')[0] || '',
+    'Resolution Notes': request.resolution || '',
   }))
 }
 

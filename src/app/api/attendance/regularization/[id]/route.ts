@@ -5,9 +5,10 @@ import { getUserContext } from '@/lib/auth-utils'
 // PUT /api/attendance/regularization/[id] - Review regularization request
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const userContext = await getUserContext()
     if (!userContext.success) {
       return NextResponse.json({ success: false, error: userContext.error || 'Unauthorized' }, { status: 401 })
@@ -27,7 +28,7 @@ export async function PUT(
 
     // Get the regularization request
     const regularizationRequest = await prisma.attendanceRegularizationRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         employee: true
       }
@@ -43,7 +44,7 @@ export async function PUT(
 
     // Update the regularization request
     const updatedRequest = await prisma.attendanceRegularizationRequest.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status,
         reviewedBy: userContext.user.id,
@@ -97,16 +98,17 @@ export async function PUT(
 // GET /api/attendance/regularization/[id] - Get specific regularization request
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const userContext = await getUserContext()
     if (!userContext.success) {
       return NextResponse.json({ success: false, error: userContext.error || 'Unauthorized' }, { status: 401 })
     }
 
     const regularizationRequest = await prisma.attendanceRegularizationRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         employee: {
           include: {
@@ -132,7 +134,7 @@ export async function GET(
     }
 
     // Check if user has permission to view this request
-    if (regularizationRequest.employeeId !== userContext.user.employee?.id && !userContext.isManagerOrAdmin) {
+    if (regularizationRequest.employeeId !== userContext.user?.employee?.id && !userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 

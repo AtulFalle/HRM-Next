@@ -80,7 +80,7 @@ export function PayslipTemplate({
             </div>
             <div className="flex justify-between">
               <span className="font-medium">Department:</span>
-              <span>{payroll.employee.department.name}</span>
+              <span>{payroll.employee.departmentId}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">Position:</span>

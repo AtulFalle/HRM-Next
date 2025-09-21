@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = {}
 
     // If employee, only show own payroll
-    if (userContext.isEmployee()) {
+    if (userContext.isEmployee?.()) {
       if (!userContext.user.employee?.id) {
         return NextResponse.json({ success: false, error: 'Employee record not found' }, { status: 404 })
       }
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only admin can create payroll records
-    if (!userContext.isAdmin()) {
+    if (!userContext.isAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 

@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user has permission to create onboarding
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ error: 'Forbidden - Manager or Admin access required' }, { status: 403 })
     }
 
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       })
 
       // Create onboarding steps separately
-      const steps = await tx.onboardingStep.createMany({
+      await tx.onboardingStep.createMany({
         data: [
           {
             submissionId: onboardingSubmission.id,

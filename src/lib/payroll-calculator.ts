@@ -1,7 +1,5 @@
-import { prisma } from '@/lib/db'
 import type { 
   PayrollCalculationResult, 
-  CreatePayrollInputData,
   VariablePayEntry,
   Attendance
 } from '@/types'
@@ -302,7 +300,7 @@ export class PayrollCalculator {
    */
   private static calculateInsurance(basicSalary: number): number {
     // This can be made configurable per employee or company policy
-    return 0
+    return basicSalary
   }
 
   /**
@@ -379,9 +377,7 @@ export class PayrollCalculator {
    * Generate payroll summary for reporting
    */
   static generatePayrollSummary(
-    results: PayrollCalculationResult[],
-    month: number,
-    year: number
+    results: PayrollCalculationResult[]
   ): {
     totalEmployees: number
     totalBasicSalary: number

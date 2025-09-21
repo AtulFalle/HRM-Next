@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only admins can process payroll
-    if (userContext.user.role !== 'ADMIN') {
+    if (userContext.user?.role !== 'ADMIN') {
       return NextResponse.json({ success: false, error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     for (const employee of employees) {
       try {
         // Get attendance data if requested
-        let attendance = []
+        let attendance: unknown[] = []
         if (validatedData.includeAttendance) {
           const startDate = new Date(validatedData.year, validatedData.month - 1, 1)
           const endDate = new Date(validatedData.year, validatedData.month, 0)
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Get variable pay entries if requested
-        let variablePayEntries = []
+        let variablePayEntries: unknown[] = []
         if (validatedData.includeVariablePay) {
           variablePayEntries = await prisma.variablePayEntry.findMany({
             where: {
@@ -101,8 +101,8 @@ export async function POST(request: NextRequest) {
             month: validatedData.month,
             year: validatedData.year,
             basicSalary: Number(employee.salary),
-            attendance,
-            variablePayEntries,
+            attendance: attendance as never,
+            variablePayEntries: variablePayEntries as never,
             hireDate: employee.hireDate,
           },
           {
@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
             details: {
               month: validatedData.month,
               year: validatedData.year,
-              calculationResult,
+              calculationResult: JSON.parse(JSON.stringify(calculationResult)),
               warnings: validation.warnings,
             },
             performedBy: userContext.user.id,
@@ -248,9 +248,7 @@ export async function POST(request: NextRequest) {
 
     // Generate summary
     const summary = PayrollCalculator.generatePayrollSummary(
-      results.map(r => r.calculationResult),
-      validatedData.month,
-      validatedData.year
+      results.map(r => r.calculationResult)
     )
 
     return NextResponse.json({
@@ -258,7 +256,7 @@ export async function POST(request: NextRequest) {
       data: {
         processed: results.length,
         total: employees.length,
-        errors: errors.length,
+        errorCount: errors.length,
         results,
         errors,
         summary,
@@ -269,7 +267,7 @@ export async function POST(request: NextRequest) {
     console.error('Error processing payroll:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error.issues },
         { status: 400 }
       )
     }

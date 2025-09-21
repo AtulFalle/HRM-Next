@@ -14,8 +14,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userContext = await getUserContext(request)
-    if (!userContext.isAdmin()) {
+    const userContext = await getUserContext()
+    if (!userContext.isAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -57,8 +57,8 @@ export async function GET(
     // Calculate aggregated data
     const totalEmployees = payrollData.length
     const totalAmount = payrollData.reduce((sum, payroll) => sum + Number(payroll.netSalary), 0)
-    const errors = payrollData.filter(p => p.status === 'ERROR').length
-    const warnings = payrollData.filter(p => p.status === 'PENDING').length
+    const errors = payrollData.filter(p => p.status === 'PENDING').length
+    const warnings = payrollData.filter(p => p.status === 'PROCESSED').length
 
     // Determine overall status
     let status = 'DRAFT'
@@ -106,8 +106,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userContext = await getUserContext(request)
-    if (!userContext.isAdmin()) {
+    const userContext = await getUserContext()
+    if (!userContext.isAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -124,9 +124,9 @@ export async function PUT(
     const validatedData = updatePayrollCycleSchema.parse(body)
 
     // Update all payroll records for this cycle
-    const updateData: { status?: string } = {}
+    const updateData: { status?: 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED' } = {}
     if (validatedData.status) {
-      updateData.status = validatedData.status
+      updateData.status = validatedData.status as 'PENDING' | 'PROCESSED' | 'PAID' | 'FINALIZED'
     }
 
     const updatedPayrolls = await prisma.payroll.updateMany({
@@ -167,7 +167,7 @@ export async function PUT(
     console.error('Error updating payroll cycle:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid data', details: error.errors },
+        { success: false, error: 'Invalid data', details: error.issues },
         { status: 400 }
       )
     }
@@ -184,8 +184,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userContext = await getUserContext(request)
-    if (!userContext.isAdmin()) {
+    const userContext = await getUserContext()
+    if (!userContext.isAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 

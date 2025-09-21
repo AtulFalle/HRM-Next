@@ -15,8 +15,8 @@ const createVariablePayEntrySchema = z.object({
 // GET /api/payroll/variable-pay - Get variable pay entries
 export async function GET(request: NextRequest) {
   try {
-    const userContext = await getUserContext(request)
-    if (!userContext.isManagerOrAdmin()) {
+    const userContext = await getUserContext()
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = {}
 
     // If not admin/manager, only show own variable pay entries
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       if (!userContext.user.employee?.id) {
         return NextResponse.json({ success: false, error: 'Employee record not found' }, { status: 404 })
       }
@@ -102,8 +102,8 @@ export async function GET(request: NextRequest) {
 // POST /api/payroll/variable-pay - Create variable pay entry
 export async function POST(request: NextRequest) {
   try {
-    const userContext = await getUserContext(request)
-    if (!userContext.isManagerOrAdmin()) {
+    const userContext = await getUserContext()
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
     console.error('Error creating variable pay entry:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error.issues },
         { status: 400 }
       )
     }

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only managers and admins can calculate payroll
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Manager or Admin access required' }, { status: 403 })
     }
 
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     // Get attendance data if requested
     let presentDays = 0
     let leaveDays = 0
-    let attendanceData = []
+    let attendanceData: Awaited<ReturnType<typeof prisma.attendance.findMany>> = []
 
     if (validatedData.includeAttendance) {
       attendanceData = await prisma.attendance.findMany({
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     // Get approved variable pay entries if requested
     let totalVariablePay = 0
-    let variablePayEntries = []
+    let variablePayEntries: Awaited<ReturnType<typeof prisma.variablePayEntry.findMany>> = []
 
     if (validatedData.includeVariablePay) {
       variablePayEntries = await prisma.variablePayEntry.findMany({
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
     console.error('Error calculating payroll:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error?.issues },
         { status: 400 }
       )
     }

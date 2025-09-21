@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -39,19 +39,14 @@ export function AttendanceCalendar({
   employeeId,
   month = new Date().getMonth() + 1,
   year = new Date().getFullYear(),
-  onDateClick,
-  onMarkAttendance
+  onDateClick
 }: AttendanceCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(month)
   const [currentYear, setCurrentYear] = useState(year)
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    fetchAttendanceData()
-  }, [currentMonth, currentYear, employeeId])
-
-  const fetchAttendanceData = async () => {
+  const fetchAttendanceData = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({
@@ -71,7 +66,11 @@ export function AttendanceCalendar({
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentMonth, currentYear, employeeId])
+
+  useEffect(() => {
+    fetchAttendanceData()
+  }, [fetchAttendanceData])
 
   const getDaysInMonth = (month: number, year: number) => {
     return new Date(year, month, 0).getDate()

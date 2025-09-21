@@ -56,7 +56,7 @@ export async function GET(
     }
 
     // Check permissions - employees can only view their own payroll inputs
-    if (!userContext.isManagerOrAdmin() && payrollInput.employeeId !== userContext.user.employee?.id) {
+    if (!userContext.isManagerOrAdmin?.() && payrollInput.employeeId !== userContext.user?.employee?.id) {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
@@ -99,7 +99,7 @@ export async function PUT(
     }
 
     // Check permissions - only managers and admins can update payroll inputs
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Manager or Admin access required' }, { status: 403 })
     }
 
@@ -122,8 +122,8 @@ export async function PUT(
     const leaveDeduction = validatedData.leaveDeduction ?? existingInput.leaveDeduction
     const otherDeductions = validatedData.otherDeductions ?? existingInput.otherDeductions
 
-    const totalEarnings = basicSalary + hra + variablePay + overtime + bonus + allowances
-    const totalDeductions = pf + esi + tax + insurance + leaveDeduction + otherDeductions
+    const totalEarnings = Number(basicSalary) + Number(hra) + Number(variablePay) + Number(overtime) + Number(bonus) + Number(allowances)
+    const totalDeductions = Number(pf) + Number(esi) + Number(tax) + Number(insurance) + Number(leaveDeduction) + Number(otherDeductions)
     const netSalary = totalEarnings - totalDeductions
 
     // Update payroll input
@@ -185,7 +185,7 @@ export async function PUT(
     console.error('Error updating payroll input:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error.issues },
         { status: 400 }
       )
     }
@@ -220,7 +220,7 @@ export async function DELETE(
     }
 
     // Check permissions - only admins can delete payroll inputs
-    if (userContext.user.role !== 'ADMIN') {
+    if (userContext.user?.role !== 'ADMIN') {
       return NextResponse.json({ success: false, error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 

@@ -15,16 +15,17 @@ const updateCycleSchema = z.object({
 // GET /api/performance/cycles/[id] - Get a specific review cycle
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const cycle = await prisma.reviewCycle.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         creator: {
           select: {
@@ -68,9 +69,10 @@ export async function GET(
 // PUT /api/performance/cycles/[id] - Update a review cycle
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -90,7 +92,7 @@ export async function PUT(
     const validatedData = updateCycleSchema.parse(body)
 
     const cycle = await prisma.reviewCycle.update({
-      where: { id: params.id },
+      where: { id },
       data: validatedData,
       include: {
         creator: {
@@ -120,9 +122,10 @@ export async function PUT(
 // DELETE /api/performance/cycles/[id] - Delete a review cycle
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -140,7 +143,7 @@ export async function DELETE(
 
     // Check if cycle has reviews
     const cycleWithReviews = await prisma.reviewCycle.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -161,7 +164,7 @@ export async function DELETE(
     }
 
     await prisma.reviewCycle.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Cycle deleted successfully' })

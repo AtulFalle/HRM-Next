@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   Dialog,
@@ -11,9 +11,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { UserCheck, CheckCircle, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { ManagerStatsCards } from './manager/ManagerStatsCards'
@@ -23,8 +20,7 @@ import { ApprovalHistoryTable } from './manager/ApprovalHistoryTable'
 import type { 
   VariablePayEntryWithEmployee,
   PayrollCorrectionRequestWithEmployee,
-  PayrollDashboardStats,
-  PayrollInputWithEmployee
+  PayrollDashboardStats
 } from '@/types'
 
 interface ApprovalHistory {
@@ -64,11 +60,7 @@ export function ManagerPayrollInterface() {
   const [showSalaryBreakdownDialog, setShowSalaryBreakdownDialog] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState<TeamPayrollSummary | null>(null)
 
-  useEffect(() => {
-    fetchManagerData()
-  }, [])
-
-  const fetchManagerData = async () => {
+  const fetchManagerData = useCallback(async () => {
     setLoading(true)
     try {
       const [variablePayRes, correctionsRes, statsRes] = await Promise.all([
@@ -96,7 +88,11 @@ export function ManagerPayrollInterface() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchManagerData()
+  }, [fetchManagerData])
 
   const fetchApprovalHistory = async () => {
     try {

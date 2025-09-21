@@ -25,10 +25,6 @@ const createPayrollInputSchema = z.object({
   notes: z.string().optional(),
 })
 
-const updatePayrollInputSchema = z.object({
-  status: z.enum(['DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'PROCESSED', 'REJECTED']).optional(),
-  notes: z.string().optional(),
-})
 
 // GET /api/payroll/inputs - Get payroll inputs
 export async function GET(request: NextRequest) {
@@ -38,7 +34,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: userContext.error || 'Unauthorized' }, { status: 401 })
     }
 
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Manager or Admin access required' }, { status: 403 })
     }
 
@@ -56,11 +52,11 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = {}
 
     // If not admin/manager, only show own payroll inputs
-    if (!userContext.isManagerOrAdmin()) {
-      if (!userContext.user.employee?.id) {
+    if (!userContext.isManagerOrAdmin?.()) {
+      if (!userContext.user?.employee?.id) {
         return NextResponse.json({ success: false, error: 'Employee record not found' }, { status: 404 })
       }
-      where.employeeId = userContext.user.employee.id
+      where.employeeId = userContext.user?.employee?.id
     } else if (employeeId) {
       where.employeeId = employeeId
     }
@@ -72,7 +68,7 @@ export async function GET(request: NextRequest) {
       where.year = parseInt(year)
     }
     if (status) {
-      where.status = status
+      where.status = status as 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'PROCESSED' | 'REJECTED'
     }
 
     const [payrollInputs, total] = await Promise.all([
@@ -125,7 +121,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: userContext.error || 'Unauthorized' }, { status: 401 })
     }
 
-    if (!userContext.isManagerOrAdmin()) {
+    if (!userContext.isManagerOrAdmin?.()) {
       return NextResponse.json({ success: false, error: 'Forbidden - Manager or Admin access required' }, { status: 403 })
     }
 
@@ -203,7 +199,7 @@ export async function POST(request: NextRequest) {
         presentDays: validatedData.presentDays,
         leaveDays: validatedData.leaveDays,
         notes: validatedData.notes,
-        status: 'DRAFT',
+        status: 'DRAFT' as const,
       },
       include: {
         employee: {
@@ -229,7 +225,7 @@ export async function POST(request: NextRequest) {
           totalDeductions,
           netSalary: totalEarnings - totalDeductions,
         },
-        performedBy: userContext.user.id,
+        performedBy: userContext.user?.id || '',
       },
     })
 
@@ -242,7 +238,7 @@ export async function POST(request: NextRequest) {
     console.error('Error creating payroll input:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error.issues },
         { status: 400 }
       )
     }

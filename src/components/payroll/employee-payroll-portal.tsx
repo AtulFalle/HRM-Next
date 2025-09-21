@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
 import { 
   Sheet,
   SheetContent,
@@ -10,24 +11,18 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+import {
+  DialogFooter
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { User, Plus, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react'
 import { toast } from 'sonner'
-import { PayslipViewer } from './payslip-viewer'
 import { EmployeeStatsCards } from './employee/EmployeeStatsCards'
 import { PayslipHistoryTable } from './employee/PayslipHistoryTable'
 import { SalaryBreakdownTable } from './employee/SalaryBreakdownTable'
-import { CorrectionRequestForm } from './employee/CorrectionRequestForm'
+import { CorrectionRequestForm as CorrectionForm } from './employee/CorrectionRequestForm'
 import type { 
   PayslipWithEmployee,
   PayrollCorrectionRequestWithEmployee,
@@ -61,14 +56,44 @@ export function EmployeePayrollPortal() {
   const [loading, setLoading] = useState(false)
   const [showCorrectionDialog, setShowCorrectionDialog] = useState(false)
   const [showSalaryBreakdownDialog, setShowSalaryBreakdownDialog] = useState(false)
-  const [selectedPayroll, setSelectedPayroll] = useState<PayrollWithEmployee | null>(null)
   const [selectedSalaryBreakdown, setSelectedSalaryBreakdown] = useState<SalaryBreakdown | null>(null)
+  const [selectedPayroll, setSelectedPayroll] = useState<PayrollWithEmployee | null>(null)
 
-  useEffect(() => {
-    fetchEmployeeData()
-  }, [])
+  const correctionRequestColumns = [
+    {
+      key: 'type',
+      label: 'Type',
+      render: (value: unknown, request: PayrollCorrectionRequestWithEmployee) => request.type
+    },
+    {
+      key: 'description',
+      label: 'Description',
+      render: (value: unknown, request: PayrollCorrectionRequestWithEmployee) => request.description
+    },
+    {
+      key: 'requestedAmount',
+      label: 'Amount',
+      render: (value: unknown, request: PayrollCorrectionRequestWithEmployee) => 
+        request.requestedAmount ? `$${Number(request.requestedAmount).toFixed(2)}` : 'N/A'
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (value: unknown, request: PayrollCorrectionRequestWithEmployee) => (
+        <Badge variant={request.status === 'APPROVED' ? 'default' : request.status === 'REJECTED' ? 'destructive' : 'secondary'}>
+          {request.status}
+        </Badge>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Requested',
+      render: (value: unknown, request: PayrollCorrectionRequestWithEmployee) => 
+        new Date(request.createdAt).toLocaleDateString()
+    }
+  ]
 
-  const fetchEmployeeData = async () => {
+  const fetchEmployeeData = useCallback(async () => {
     if (!session?.user?.employee?.id) return
 
     setLoading(true)
@@ -97,7 +122,11 @@ export function EmployeePayrollPortal() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [session?.user?.employee?.id])
+
+  useEffect(() => {
+    fetchEmployeeData()
+  }, [fetchEmployeeData])
 
   const fetchSalaryBreakdowns = async () => {
     try {
@@ -274,7 +303,7 @@ export function EmployeePayrollPortal() {
       </Tabs>
 
       {/* Correction Request Dialog */}
-      <CorrectionRequestForm
+        <CorrectionForm
         isOpen={showCorrectionDialog}
         onClose={() => setShowCorrectionDialog(false)}
         payroll={selectedPayroll}
@@ -297,7 +326,6 @@ export function EmployeePayrollPortal() {
 
 // Correction Request Form Component
 function CorrectionRequestForm({ 
-  payroll, 
   onSubmit, 
   onCancel 
 }: { 
